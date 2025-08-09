@@ -8,9 +8,11 @@
 .idea
 out
 .cache/
+.bsp/
 .history/
 .lib/
 dist/*
+project/
 target/
 bin/
 libexec/
