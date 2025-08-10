@@ -1,22 +1,31 @@
 package saw.ermezinde.game
 
 import org.apache.pekko.actor.{Actor, Props}
-import saw.ermezinde.game.GameActor.DebugSetState
 import saw.ermezinde.game.behaviour._
+import saw.ermezinde.game.behaviour.fallback.WrongStateFallback
 import saw.ermezinde.game.domain.state.game.{GameActorState, GameNoState, GameState}
 
 object GameActor {
-  def props: Props = Props(new GameActor)
-  case class DebugSetState(state: GameActorState)
+  def props: Props = Props(
+    new GameActor with NoStateBehaviour
+      with NotStartedBehaviour with InPreparationBehaviour with InPlayBehaviour
+      with InCountingBehaviour with FinishedBehaviour with WrongStateFallback
+  )
+  // Commands
+  trait GameActorCommand
+
+
+  // Response
+  type GameFailureResponse = String
+  type GameSuccessResponse = String
+  type GameActorResponse = Either[GameFailureResponse, GameSuccessResponse]
 }
-class GameActor extends Actor
-  with NotStartedBehaviour with FinishedBehaviour
-  with InPreparationBehaviour with InPlayBehaviour
-  with InCountingBehaviour {
+class GameActor extends Actor {
+  this: NoStateBehaviour with NotStartedBehaviour with FinishedBehaviour with InPreparationBehaviour with InPlayBehaviour with InCountingBehaviour =>
 
   override def receive: Receive = behaviour(GameNoState)
 
-  def gameBehaviour(state: GameActorState): Receive = {
+  protected def gameBehaviour(state: GameActorState): Receive = {
     notStartedBehaviour(state)
       .orElse(inPreparationBehaviour(state))
       .orElse(inPlayBehaviour(state))
@@ -24,15 +33,10 @@ class GameActor extends Actor
       .orElse(finishedBehaviour(state))
   }
 
-  def behaviour(state: GameActorState): Receive = debugBehaviour.orElse(gameBehaviour(state)).orElse(common(state))
+  def behaviour(state: GameActorState): Receive = gameBehaviour(state).orElse(common(state))
 
   def common(state: GameActorState): Receive = {
     case msg => println(s"Received unknown message: $msg while with state: $state")
-  }
-
-  val debugBehaviour: Receive = {
-    case DebugSetState(s: GameState) =>
-      context.become(behaviour(s))
   }
 }
 

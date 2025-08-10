@@ -28,5 +28,7 @@ libraryDependencies ++= Seq(
 
   "org.scalatest"    %% "scalatest"           % ScalaTestVersion % Test,
   "org.apache.pekko" %% "pekko-testkit"       % PekkoVersion     % Test,
-  "org.apache.pekko" %% "pekko-http-testkit"  % PekkoHttpVersion % Test
+  "org.apache.pekko" %% "pekko-http-testkit"  % PekkoHttpVersion % Test,
+  "org.mockito" %% "mockito-scala" % "2.0.0" % Test,
+  "org.mockito" %% "mockito-scala-scalatest" % "2.0.0" % Test,
 )

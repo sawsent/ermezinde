@@ -2,27 +2,27 @@ package saw.ermezinde.game.domain.state.game
 
 import saw.ermezinde.game.domain.state.board.{PlacePhaseBoardModel, PreparationPhaseBoardModel, ResolvePhaseBoardModel}
 import saw.ermezinde.game.domain.state.player.PlayerModel
+import saw.ermezinde.game.domain.state.player.PlayerModel.PlayerModelId
 
 sealed trait GameModel {
   val step: GameStep
-  val players: Set[PlayerModel]
+  val players: Map[PlayerModelId, PlayerModel]
 }
 
-case class NotStartedGameModel(
-                              players: Set[PlayerModel]
-                              ) extends GameModel {
+case class NotStartedGameModel() extends GameModel {
   override val step: GameStep = GameStep.NOT_STARTED
+  override val players: Map[PlayerModelId, PlayerModel] = Map.empty
 }
 
 case class InPreparationGameModel(
-                                   players: Set[PlayerModel]
+                                   players: Map[PlayerModelId, PlayerModel]
                                  ) extends GameModel {
   override val step: GameStep = GameStep.PREPARATION
 }
 
 sealed trait InPlayGameModel extends GameModel {
   override val step: GameStep = GameStep.IN_PLAY
-  override val players: Set[PlayerModel]
+  override val players: Map[PlayerModelId, PlayerModel]
 
   val phase: GamePhase
 
@@ -30,7 +30,7 @@ sealed trait InPlayGameModel extends GameModel {
 }
 case class PreparationPhaseGameModel(
                                       round: Int,
-                                      players: Set[PlayerModel],
+                                      players: Map[PlayerModelId, PlayerModel],
 
                                       diceRolls: Map[PlayerModel, Int],
                                       board: PreparationPhaseBoardModel
@@ -39,7 +39,7 @@ case class PreparationPhaseGameModel(
 }
 
 case class PlacePhaseGameModel(
-                                players: Set[PlayerModel],
+                                players: Map[PlayerModelId, PlayerModel],
                                 round: Int,
                                 turn: Int,
                                 currentPlayer: PlayerModel,
@@ -49,7 +49,7 @@ case class PlacePhaseGameModel(
 }
 
 case class ResolvePhaseGameModel(
-                                  players: Set[PlayerModel],
+                                  players: Map[PlayerModelId, PlayerModel],
                                   round: Int,
                                   board: ResolvePhaseBoardModel
                                 ) extends InPlayGameModel {
@@ -57,7 +57,7 @@ case class ResolvePhaseGameModel(
 }
 
 case class DiscardPhaseGameModel(
-                                  players: Set[PlayerModel],
+                                  players: Map[PlayerModelId, PlayerModel],
                                   round: Int
                                 ) extends InPlayGameModel {
   override val phase: GamePhase = GamePhase.DISCARD
@@ -66,10 +66,10 @@ case class DiscardPhaseGameModel(
 
 case class InCountingGameModel(
                                 step: GameStep = GameStep.COUNTING,
-                                players: Set[PlayerModel]
+                                players: Map[PlayerModelId, PlayerModel]
                               ) extends GameModel
 
 case class FinishedGameModel(
                               step: GameStep = GameStep.FINISHED,
-                              players: Set[PlayerModel]
+                              players: Map[PlayerModelId, PlayerModel]
                             ) extends GameModel
