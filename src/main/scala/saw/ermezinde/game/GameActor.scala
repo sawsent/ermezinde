@@ -4,6 +4,7 @@ import org.apache.pekko.actor.{Actor, Props}
 import saw.ermezinde.game.behaviour._
 import saw.ermezinde.game.behaviour.fallback.WrongStateFallback
 import saw.ermezinde.game.domain.state.game.{GameActorState, GameNoState, GameState}
+import saw.ermezinde.util.logging.Logging
 
 object GameActor {
   def props: Props = Props(
@@ -20,7 +21,7 @@ object GameActor {
   type GameSuccessResponse = String
   type GameActorResponse = Either[GameFailureResponse, GameSuccessResponse]
 }
-class GameActor extends Actor {
+class GameActor extends Actor with Logging {
   this: NoStateBehaviour with NotStartedBehaviour with FinishedBehaviour with InPreparationBehaviour with InPlayBehaviour with InCountingBehaviour =>
 
   override def receive: Receive = behaviour(GameNoState)
@@ -37,7 +38,7 @@ class GameActor extends Actor {
   def behaviour(state: GameActorState): Receive = gameBehaviour(state).orElse(common(state))
 
   def common(state: GameActorState): Receive = {
-    case msg => println(s"Received unknown message: $msg while with state: $state")
+    case msg => logger.info(s"GameActor Received unknown message: $msg while with state: $state")
   }
 }
 

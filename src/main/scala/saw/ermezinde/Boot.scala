@@ -6,8 +6,9 @@ import org.apache.pekko.pattern.ask
 import org.apache.pekko.util.Timeout
 import saw.ermezinde.game.GameActor
 import saw.ermezinde.game.GameActor.{GameActorCommand, GameActorResponse}
+import saw.ermezinde.game.behaviour.InPreparationBehaviour.{GetReadyForInPlay, SelectMissionCard}
 import saw.ermezinde.game.behaviour.NoStateBehaviour.CreateGameCommand
-import saw.ermezinde.game.behaviour.NotStartedBehaviour.{PlayerJoinGame, PlayerReady, PlayerSelectColor}
+import saw.ermezinde.game.behaviour.NotStartedBehaviour.{PlayerJoinGame, PlayerReady, PlayerSelectColor, StartGame}
 import saw.ermezinde.game.domain.state.player.PlayerModel.Color
 
 import scala.concurrent.Await
@@ -41,8 +42,17 @@ object Boot extends App {
   printResponse(PlayerReady("vicente"))
   printResponse(PlayerReady("sebas"))
 
-  printResponse(PlayerJoinGame("leonor"))
-  printResponse(PlayerSelectColor("leonor", Color.GREEN))
-  printResponse(PlayerReady("leonor"))
+  printResponse(StartGame("vicente"))
+
+  printResponse(SelectMissionCard(ownerId, 0))
+  printResponse(SelectMissionCard("sebas", 0))
+  printResponse(SelectMissionCard(ownerId, 0))
+  printResponse(SelectMissionCard("sebas", 0))
+  printResponse(SelectMissionCard(ownerId, 0))
+
+  printResponse(GetReadyForInPlay("leonor"))
+  printResponse(GetReadyForInPlay(ownerId))
+  printResponse(GetReadyForInPlay(ownerId))
+  printResponse(GetReadyForInPlay("sebas"))
 
 }

@@ -2,12 +2,23 @@ package saw.ermezinde.game.syntax
 
 sealed trait Validatable[L, R] {
   def map[O](fn: R => O): Either[L, O]
+  def map[O](out: => O): Either[L, O]
+  def flatMap[O](fn: R => Either[L, O]): Either[L, O]
+  def flatMap[O](out: => Either[L, O]): Either[L, O]
 }
 case class Validated[L, R](args: R) extends Validatable[L, R] {
   override def map[O](fn: R => O): Either[L, O] = Right(fn(args))
+  override def map[O](out: => O): Either[L, O] = Right(out)
+
+  override def flatMap[O](fn: R => Either[L, O]): Either[L, O] = fn(args)
+  override def flatMap[O](out: => Either[L, O]): Either[L, O] = out
 }
 case class Invalid[L, R](error: L) extends Validatable[L, R] {
   override def map[O](fn: R => O): Either[L, O] = Left(error)
+  override def map[O](out: => O): Either[L, O] = Left(error)
+
+  override def flatMap[O](fn: R => Either[L, O]): Either[L, O] = Left(error)
+  override def flatMap[O](out: => Either[L, O]): Either[L, O] = Left(error)
 }
 
 object Validate {

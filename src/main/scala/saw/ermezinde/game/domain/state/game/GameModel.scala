@@ -3,6 +3,7 @@ package saw.ermezinde.game.domain.state.game
 import saw.ermezinde.game.domain.state.board.{PlacePhaseBoardModel, PreparationPhaseBoardModel, ResolvePhaseBoardModel}
 import saw.ermezinde.game.domain.state.card.MissionCard
 import saw.ermezinde.game.domain.state.player.PlayerModel
+import saw.ermezinde.game.domain.state.player.PlayerModel.Color.{BLUE, GREEN}
 import saw.ermezinde.game.domain.state.player.PlayerModel.PlayerModelId
 
 import scala.util.Random
@@ -18,22 +19,46 @@ case class NotStartedGameModel() extends GameModel {
 }
 
 object InPreparationGameModel {
-  def init(model: NotStartedGameModel): InPreparationGameModel = {
-    val playerOrdering = Random.shuffle(model.players.keys.toList)
+  def init(model: NotStartedGameModel, players: List[PlayerModelId]): InPreparationGameModel = {
+    // val playerOrdering = Random.shuffle(model.players.keys.toList)
+     val playerOrdering = List(BLUE, GREEN)
 
     InPreparationGameModel(
-      model.players,
+      players.map(p => p -> PlayerModel(p)).toMap,
       playerOrdering,
-      List.empty
+      List.empty,
+      Random.shuffle(MissionCard.defaultDeck),
+      currentPlayerIndex = 0
     )
   }
 }
 case class InPreparationGameModel(
                                    players: Map[PlayerModelId, PlayerModel],
                                    playerOrdering: List[PlayerModelId],
-                                   missionCards: List[MissionCard]
+                                   missionCards: List[MissionCard],
+                                   possibleMissionCards: List[MissionCard],
+                                   currentPlayerIndex: Int
                                  ) extends GameModel {
   override val step: GameStep = GameStep.PREPARATION
+
+  val currentPlayerId: PlayerModelId = playerOrdering(currentPlayerIndex)
+
+  def selectMissionCard(cardIndex: Int): InPreparationGameModel = {
+    val card = possibleMissionCards(cardIndex)
+    val updatedPossibleMissionCards = possibleMissionCards.filter(_ == card)
+    val updatedMissionCards = card +: missionCards
+
+    copy(
+      possibleMissionCards = updatedPossibleMissionCards,
+      missionCards = updatedMissionCards
+    )
+  }
+
+  def nextPlayer: InPreparationGameModel = {
+    copy(
+      currentPlayerIndex = (currentPlayerIndex + 1) % players.toList.length
+    )
+  }
 }
 
 sealed trait InPlayGameModel extends GameModel {

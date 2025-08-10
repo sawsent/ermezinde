@@ -12,6 +12,7 @@ import org.mockito.MockitoSugar.verify
 import org.scalatest.matchers.should.Matchers
 import saw.ermezinde.game.GameActor.{GameFailureResponse, GameSuccessResponse}
 import saw.ermezinde.game.behaviour.NoStateBehaviour.CreateGameCommand
+import saw.ermezinde.game.domain.state.game.NotStartedGameState.NotStartedPlayerModel
 import saw.ermezinde.game.domain.state.player.PlayerModel.Color.UNSET
 
 import scala.concurrent.Await
@@ -45,7 +46,7 @@ class NoStateBehaviourSpec extends TestKit(ActorSystem("NoStateBehaviour")) with
     state shouldBe NotStartedGameState(
       gameId,
       ownerId,
-      players = Map(ownerId -> UNSET),
+      waitingPlayers = Map(ownerId -> NotStartedPlayerModel(UNSET, ready = false)),
       game = NotStartedGameModel()
     )
   }

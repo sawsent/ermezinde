@@ -10,8 +10,12 @@ object GameActorState {
   type PlayerId = String
   type Timestamp = Long
 }
-trait GameActorState
-case object GameNoState extends GameActorState
+trait GameActorState {
+  val id: String
+}
+case object GameNoState extends GameActorState {
+  override val id: PlayerId = ""
+}
 
 sealed trait GameState extends GameActorState {
   val id: String
@@ -43,7 +47,8 @@ object InPreparationGameState {
       ownerId = state.ownerId,
       gameStartTime = Some(startTime),
       players = state.players,
-      game = InPreparationGameModel.init(state.game)
+      game = InPreparationGameModel.init(state.game, state.players.values.toList),
+      playersReady = Set.empty
     )
   }
 }
@@ -52,8 +57,11 @@ case class InPreparationGameState(
                                    ownerId: String,
                                    gameStartTime: Option[Timestamp],
                                    players: Map[PlayerId, PlayerModelId],
+                                   playersReady: Set[PlayerId],
                                    game: InPreparationGameModel
-                                 ) extends GameState
+                                 ) extends GameState {
+  val currentPlayer: PlayerId = players.find { case (_, playerModelId) => game.currentPlayerId == playerModelId}.map(_._1).get
+}
 
 sealed trait InPlayGameState extends GameState {
   override val game: InPlayGameModel
