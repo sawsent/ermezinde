@@ -5,12 +5,13 @@ import saw.ermezinde.game.GameActor.{GameActorCommand, GameActorResponse}
 import saw.ermezinde.game.behaviour.NoStateBehaviour.CreateGameCommand
 import saw.ermezinde.game.behaviour.fallback.WrongStateFallback
 import saw.ermezinde.game.domain.state.game.GameActorState.PlayerId
+import saw.ermezinde.game.domain.state.game.NotStartedGameState.NotStartedPlayerModel
 import saw.ermezinde.game.domain.state.game.{GameActorState, GameNoState, NotStartedGameModel, NotStartedGameState}
 import saw.ermezinde.game.domain.state.player.PlayerModel.Color
 import saw.ermezinde.util.logging.BehaviourLogging
 
 object NoStateBehaviour {
-  trait NoStateGameCommand extends GameActorCommand
+  sealed trait NoStateGameCommand extends GameActorCommand
   case class CreateGameCommand(id: String, ownerId: PlayerId) extends NoStateGameCommand
 
 }
@@ -35,7 +36,7 @@ trait NoStateBehaviour extends BehaviourLogging {
         val updatedState = NotStartedGameState(
           gameId,
           ownerId,
-          Map(gameOwnerId -> Color.UNSET),
+          Map(gameOwnerId -> NotStartedPlayerModel(Color.UNSET, ready = false)),
           model
         )
         context.become(behaviour(updatedState))

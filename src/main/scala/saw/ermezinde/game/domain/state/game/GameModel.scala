@@ -1,8 +1,11 @@
 package saw.ermezinde.game.domain.state.game
 
 import saw.ermezinde.game.domain.state.board.{PlacePhaseBoardModel, PreparationPhaseBoardModel, ResolvePhaseBoardModel}
+import saw.ermezinde.game.domain.state.card.MissionCard
 import saw.ermezinde.game.domain.state.player.PlayerModel
 import saw.ermezinde.game.domain.state.player.PlayerModel.PlayerModelId
+
+import scala.util.Random
 
 sealed trait GameModel {
   val step: GameStep
@@ -14,8 +17,21 @@ case class NotStartedGameModel() extends GameModel {
   override val players: Map[PlayerModelId, PlayerModel] = Map.empty
 }
 
+object InPreparationGameModel {
+  def init(model: NotStartedGameModel): InPreparationGameModel = {
+    val playerOrdering = Random.shuffle(model.players.keys.toList)
+
+    InPreparationGameModel(
+      model.players,
+      playerOrdering,
+      List.empty
+    )
+  }
+}
 case class InPreparationGameModel(
-                                   players: Map[PlayerModelId, PlayerModel]
+                                   players: Map[PlayerModelId, PlayerModel],
+                                   playerOrdering: List[PlayerModelId],
+                                   missionCards: List[MissionCard]
                                  ) extends GameModel {
   override val step: GameStep = GameStep.PREPARATION
 }

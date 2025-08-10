@@ -1,25 +1,167 @@
 package saw.ermezinde.game.behaviour
 
-import org.apache.pekko.actor.Actor.Receive
-import saw.ermezinde.game.behaviour.NotStartedBehaviour.NotStartedGameCommand
-import saw.ermezinde.game.domain.state.game.{GameActorState, NotStartedGameModel, NotStartedGameState}
+import saw.ermezinde.game.GameActor
+import saw.ermezinde.game.GameActor.{GameActorCommand, GameActorResponse, GameFailureResponse}
+import saw.ermezinde.game.behaviour.NotStartedBehaviour._
+import saw.ermezinde.game.behaviour.fallback.WrongStateFallback
+import saw.ermezinde.game.domain.state.game.GameActorState.PlayerId
+import saw.ermezinde.game.domain.state.game.NotStartedGameState.NotStartedPlayerModel
+import saw.ermezinde.game.domain.state.game.{GameActorState, InPreparationGameState, NotStartedGameState}
+import saw.ermezinde.game.domain.state.player.PlayerModel.Color
+import saw.ermezinde.game.domain.state.player.PlayerModel.Color.UNSET
+import saw.ermezinde.game.syntax.Validate
 import saw.ermezinde.util.logging.BehaviourLogging
 
 object NotStartedBehaviour {
-  trait NotStartedGameCommand
+  sealed trait NotStartedGameCommand extends GameActorCommand
+
+  case class PlayerJoinGame(playerId: PlayerId) extends NotStartedGameCommand
+  case class PlayerLeaveGame(playerId: PlayerId) extends NotStartedGameCommand
+
+  case class PlayerSelectColor(playerId: PlayerId, color: Color) extends NotStartedGameCommand
+  case class PlayerUnselectColor(playerId: PlayerId) extends NotStartedGameCommand
+
+  case class PlayerReady(playerId: PlayerId) extends NotStartedGameCommand
+  case class PlayerUnready(playerId: PlayerId) extends NotStartedGameCommand
+
+  case class StartGame(playerId: PlayerId) extends NotStartedGameCommand
 }
+
 trait NotStartedBehaviour extends BehaviourLogging {
+  this: GameActor with WrongStateFallback =>
   private implicit val BN: String = "NotStartedBehaviour"
 
   def notStartedBehaviour(state: GameActorState): Receive = {
     case cmd: NotStartedGameCommand => state match {
-      case s: NotStartedGameState => processNotStarted(s, cmd)
-      case _ => logger.debug(BN || s"Received cmd: $cmd with wrong state. Ignoring.")
+      case s: NotStartedGameState =>
+        val response = processNotStarted(s, cmd)
+        sender() ! response
+      case s: GameActorState => fallbackWrongState(s, cmd)
     }
   }
 
-  def processNotStarted(state: NotStartedGameState, cmd: NotStartedGameCommand): Unit = {
-    logger.debug(BN || s"Processing cmd: $cmd")
+  def processNotStarted(game: NotStartedGameState, cmd: NotStartedGameCommand): GameActorResponse = {
+    cmd match {
+      case PlayerJoinGame(playerId) => Validate(
+          playerId.notBlank,
+          playerId.notInGame(game),
+          game.isNotFull
+        ).map { _ =>
+            val updatedState = game.copy(
+              waitingPlayers = game.waitingPlayers + (playerId -> NotStartedPlayerModel(UNSET, ready = false))
+            )
+            context.become(behaviour(updatedState))
+            s"Player $playerId joined the game"
+          }
+
+      case PlayerLeaveGame(playerId) => Validate(
+          playerId.notBlank,
+          playerId.inGame(game)
+        ).map { _ =>
+          val updatedState = game.copy(
+            waitingPlayers = game.waitingPlayers - playerId
+          )
+          context.become(behaviour(updatedState))
+          s"Player $playerId joined the game"
+        }
+
+      case PlayerSelectColor(playerId, color) => Validate(
+          playerId.notBlank,
+          playerId.inGame(game),
+          game.colorIsNotSelected(color)
+        ).map { _ =>
+          val updatedState = game.copy(
+            waitingPlayers = game.waitingPlayers + (playerId -> game.waitingPlayers(playerId).copy(color = color))
+          )
+          context.become(behaviour(updatedState))
+          s"Player $playerId selected color: $color"
+        }
+
+      case PlayerUnselectColor(playerId) => Validate(
+        playerId.notBlank,
+        playerId.inGame(game),
+        game.playerHasColorSelected(playerId),
+        game.playerIsNotReady(playerId)
+      ).map { _ =>
+        val updatedState = game.copy(
+          waitingPlayers = game.waitingPlayers + (playerId -> game.waitingPlayers(playerId).copy(color = UNSET))
+        )
+        context.become(behaviour(updatedState))
+        s"Player $playerId has unselected their color."
+      }
+
+      case PlayerReady(playerId) => Validate(
+        playerId.notBlank,
+        playerId.inGame(game),
+        game.playerHasColorSelected(playerId),
+        game.playerIsNotReady(playerId)
+      ).map { _ =>
+        val updatedState = game.copy(
+          waitingPlayers = game.waitingPlayers + (playerId -> game.waitingPlayers(playerId).copy(ready = true))
+        )
+        context.become(behaviour(updatedState))
+        s"Player $playerId is ready"
+      }
+
+      case PlayerUnready(playerId) => Validate(
+        playerId.notBlank,
+        playerId.inGame(game),
+        game.playerHasColorSelected(playerId),
+        game.playerIsReady(playerId)
+      ).map { _ =>
+        val updatedState = game.copy(
+          waitingPlayers = game.waitingPlayers + (playerId -> game.waitingPlayers(playerId).copy(ready = false))
+        )
+        context.become(behaviour(updatedState))
+        s"Player $playerId is not ready"
+      }
+
+      case StartGame(playerId) => Validate(
+        playerId.notBlank,
+        playerId.isOwner(game),
+        game.allPlayersReady
+      ).map { _ =>
+        val startedTimestamp = System.currentTimeMillis()
+
+        val updatedState = InPreparationGameState.init(game, startedTimestamp)
+        context.become(behaviour(updatedState))
+
+        s"Game (${game.id}) started"
+      }
+    }
   }
 
+  implicit class PlayerIdValidation(playerId: PlayerId) {
+    def notBlank: Either[GameFailureResponse, Unit] =
+      Either.cond(!playerId.isBlank, (), "PlayerId cannot be blank.")
+
+    def inGame(state: NotStartedGameState): Either[GameFailureResponse, Unit] =
+      Either.cond(state.players.contains(playerId), (), s"Player $playerId is not in the game")
+
+    def notInGame(state: NotStartedGameState): Either[GameFailureResponse, Unit] =
+      Either.cond(!state.players.contains(playerId), (), s"Player $playerId is already in the game")
+
+    def isOwner(state: NotStartedGameState): Either[GameFailureResponse, Unit] =
+      Either.cond(state.ownerId == playerId, (), s"Player $playerId is not game owner")
+  }
+
+  implicit class StateValidation(state: NotStartedGameState) {
+    def colorIsNotSelected(color: Color): Either[GameFailureResponse, Unit] =
+      Either.cond(!state.players.values.toList.contains(color), (), s"Color ${color.toString} is already selected")
+
+    def playerHasColorSelected(playerId: PlayerId): Either[GameFailureResponse, Unit] =
+      Either.cond(state.waitingPlayers(playerId).color != UNSET, (), s"Player $playerId does not have a selected color")
+
+    def playerIsNotReady(playerId: PlayerId): Either[GameFailureResponse, Unit] =
+      Either.cond(state.waitingPlayers.get(playerId).exists(!_.ready), (), s"Player $playerId is not ready")
+
+    def playerIsReady(playerId: PlayerId): Either[GameFailureResponse, Unit] =
+      Either.cond(state.waitingPlayers.get(playerId).exists(_.ready), (), s"Player $playerId is ready")
+
+    def allPlayersReady: Either[GameFailureResponse, Unit] =
+      Either.cond(state.waitingPlayers.values.toList.forall(_.ready), (), "Not all players are ready")
+
+    def isNotFull: Either[GameFailureResponse, Unit] =
+      Either.cond(state.waitingPlayers.toList.length <= 4, (), "Game is full")
+  }
 }

@@ -2,12 +2,16 @@ package saw.ermezinde
 
 import com.typesafe.config.ConfigFactory
 import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.pattern.ask
+import org.apache.pekko.util.Timeout
 import saw.ermezinde.game.GameActor
-import saw.ermezinde.game.behaviour.FinishedBehaviour.FinishedGameCommand
-import saw.ermezinde.game.behaviour.InCountingBehaviour.InCountingGameCommand
-import saw.ermezinde.game.behaviour.InPlayBehaviour.InPlayGameCommand
-import saw.ermezinde.game.behaviour.InPreparationBehaviour.InPreparationGameCommand
-import saw.ermezinde.game.behaviour.NotStartedBehaviour.NotStartedGameCommand
+import saw.ermezinde.game.GameActor.{GameActorCommand, GameActorResponse}
+import saw.ermezinde.game.behaviour.NoStateBehaviour.CreateGameCommand
+import saw.ermezinde.game.behaviour.NotStartedBehaviour.{PlayerJoinGame, PlayerReady, PlayerSelectColor}
+import saw.ermezinde.game.domain.state.player.PlayerModel.Color
+
+import scala.concurrent.Await
+import scala.concurrent.duration.{Duration, DurationInt, SECONDS}
 
 object Boot extends App {
   println("####### Starting Ermezinde Server #######")
@@ -17,13 +21,28 @@ object Boot extends App {
   implicit val system: ActorSystem = ActorSystem("ermezinde")
 
   private val testGameActor = system.actorOf(GameActor.props)
+  implicit val timeout = Timeout(1.seconds)
+  val duration = Duration(1, SECONDS)
 
-  // testGameActor ! DebugSetState(gamestate)
+  def printResponse(cmd: GameActorCommand): Unit = {
+    val response = Await.result(testGameActor ? cmd, duration).asInstanceOf[GameActorResponse]
+    println(response)
+  }
 
-  testGameActor ! new NotStartedGameCommand {}
-  testGameActor ! new InPreparationGameCommand {}
-  testGameActor ! new InPlayGameCommand {}
-  testGameActor ! new InCountingGameCommand {}
-  testGameActor ! new FinishedGameCommand {}
+
+  val gameId = "123"
+  val ownerId = "vicente"
+  printResponse(CreateGameCommand(gameId, ownerId))
+
+  printResponse(PlayerJoinGame("sebas"))
+  printResponse(PlayerSelectColor("sebas", Color.GREEN))
+  printResponse(PlayerSelectColor("vicente", Color.BLUE))
+
+  printResponse(PlayerReady("vicente"))
+  printResponse(PlayerReady("sebas"))
+
+  printResponse(PlayerJoinGame("leonor"))
+  printResponse(PlayerSelectColor("leonor", Color.GREEN))
+  printResponse(PlayerReady("leonor"))
 
 }

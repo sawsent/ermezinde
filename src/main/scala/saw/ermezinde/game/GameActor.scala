@@ -26,7 +26,8 @@ class GameActor extends Actor {
   override def receive: Receive = behaviour(GameNoState)
 
   protected def gameBehaviour(state: GameActorState): Receive = {
-    notStartedBehaviour(state)
+    noStateBehaviour(state)
+      .orElse(notStartedBehaviour(state))
       .orElse(inPreparationBehaviour(state))
       .orElse(inPlayBehaviour(state))
       .orElse(inCountingBehaviour(state))
