@@ -12,17 +12,17 @@ object InPlayBehaviour {
 trait InPlayBehaviour extends PreparationPhaseBehaviour with PlacePhaseBehaviour with ResolvePhaseBehaviour with DiscardPhaseBehaviour
   with BehaviourLogging {
 
-  private implicit val BehaviourName: String = "InPlayBehaviour"
+  private val BN: String = "InPlayBehaviour"
 
   def inPlayBehaviour(state: GameActorState): Receive = {
     case cmd: InPlayGameCommand => state match {
       case s: InPlayGameState => processInPlay(s, cmd)
-      case _ => log(s"Received $cmd while with wrong state. Ignoring.")
+      case _ => logger.debug(BN || s"Received $cmd while with wrong state. Ignoring.")
     }
   }
 
   def processInPlay(state: InPlayGameState, cmd: InPlayGameCommand): Unit = {
-    log(s"Processing cmd: $cmd")
+    logger.debug(BN || s"Processing cmd: $cmd")
     state match {
       case s: PreparationPhaseGameState => preparationBehaviour(s)(cmd)
       case s: PlacePhaseGameState => placeBehaviour(s)(cmd)

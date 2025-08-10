@@ -1,6 +1,7 @@
 package saw.ermezinde.util.logging
 
-trait BehaviourLogging {
-  val ClassName: String = this.getClass.getSimpleName
-  def log(message: String)(implicit behaviourName: String): Unit = println(s"[$ClassName@$behaviourName] $message")
+trait BehaviourLogging extends Logging {
+  implicit class BehaviourLoggingOps(behaviourName: String) {
+    def ||(msg: String): String = s"($behaviourName) $msg"
+  }
 }

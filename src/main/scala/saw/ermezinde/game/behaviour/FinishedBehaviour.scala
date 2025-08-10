@@ -9,13 +9,14 @@ object FinishedBehaviour {
   trait FinishedGameCommand
 }
 trait FinishedBehaviour extends BehaviourLogging {
-  private implicit val BehaviourName: String = "FinishedBehaviour"
+  private val BN: String = "FinishedBehaviour"
 
   def finishedBehaviour(state: GameActorState): Receive = {
     case cmd: FinishedGameCommand => processFinishedGameCommand(state, cmd)
   }
 
   def processFinishedGameCommand(state: GameActorState, cmd: FinishedGameCommand): Unit = {
-    log(s"Processing command $cmd")
+    logger.debug(BN || s"Processing command $cmd")
   }
+
 }

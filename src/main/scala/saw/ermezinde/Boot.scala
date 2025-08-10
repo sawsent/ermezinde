@@ -1,5 +1,6 @@
 package saw.ermezinde
 
+import com.typesafe.config.ConfigFactory
 import org.apache.pekko.actor.ActorSystem
 import saw.ermezinde.game.GameActor
 import saw.ermezinde.game.GameActor.DebugSetState
@@ -12,6 +13,8 @@ import saw.ermezinde.game.domain.state.game.{NotStartedGameModel, NotStartedGame
 
 object Boot extends App {
   println("####### Starting Ermezinde Server #######")
+
+  private val config = ConfigFactory.load()
 
   implicit val system: ActorSystem = ActorSystem("ermezinde")
 

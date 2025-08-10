@@ -9,17 +9,17 @@ object NotStartedBehaviour {
   trait NotStartedGameCommand
 }
 trait NotStartedBehaviour extends BehaviourLogging {
-  private implicit val BehaviourName: String = "NotStartedBehaviour"
+  private implicit val BN: String = "NotStartedBehaviour"
 
   def notStartedBehaviour(state: GameActorState): Receive = {
     case cmd: NotStartedGameCommand => state match {
       case s: NotStartedGameState => processNotStarted(s, cmd)
-      case _ => log(s"Received cmd: $cmd with wrong state. Ignoring.")
+      case _ => logger.debug(BN || s"Received cmd: $cmd with wrong state. Ignoring.")
     }
   }
 
   def processNotStarted(state: NotStartedGameState, cmd: NotStartedGameCommand): Unit = {
-    log(s"Processing cmd: $cmd")
+    logger.debug(BN || s"Processing cmd: $cmd")
   }
 
 }

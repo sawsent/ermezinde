@@ -9,12 +9,12 @@ object InCountingBehaviour {
   trait InCountingGameCommand
 }
 trait InCountingBehaviour extends BehaviourLogging {
-  private implicit val BehaviourName: String = "InCountingBehaviour"
+  private val BN: String = "InCountingBehaviour"
 
   def inCountingBehaviour(state: GameActorState): Receive = {
     case cmd: InCountingGameCommand => processInCountint(state, cmd)
   }
 
   def processInCountint(state: GameActorState, cmd: InCountingGameCommand): Unit =
-    log(s"Processing Command $cmd")
+    logger.debug(BN || s"Processing Command $cmd")
 }

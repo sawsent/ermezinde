@@ -12,14 +12,14 @@ object InPreparationBehaviour {
   case object TestInPreparationCommand extends InPreparationGameCommand
 }
 trait InPreparationBehaviour extends BehaviourLogging {
-  private implicit val BehaviourName: String = "InPreparationBehaviour"
+  private implicit val BN: String = "InPreparationBehaviour"
 
   def inPreparationBehaviour(state: GameActorState): Receive = {
     case cmd: InPreparationGameCommand => processInPreparation(state, cmd)
   }
 
   def processInPreparation(state: GameActorState, cmd: InPreparationGameCommand): Unit = {
-    log(s"Processing cmd: $cmd")
+    logger.debug(BN || s"Processing cmd: $cmd")
   }
 
 }
