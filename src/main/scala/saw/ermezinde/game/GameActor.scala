@@ -4,9 +4,8 @@ import org.apache.pekko.actor.{Actor, Props}
 import saw.ermezinde.game.behaviour._
 import saw.ermezinde.game.behaviour.fallback.WrongStateFallback
 import saw.ermezinde.game.domain.GameConfig
-import saw.ermezinde.game.domain.game.{GameActorState, GameNoState, GameState}
+import saw.ermezinde.game.domain.game.state.{GameActorState, GameNoState, GameState}
 import saw.ermezinde.util.logging.Logging
-import spray.json.JsNull.prettyPrint
 
 object GameActor {
   def props(config: GameConfig): Props = Props(
@@ -23,7 +22,7 @@ object GameActor {
   type GameSuccessResponse = String
   type GameActorResponse = Either[GameFailureResponse, GameSuccessResponse]
 }
-class GameActor(val config: GameConfig) extends Actor with Logging {
+class GameActor(val defaultConfig: GameConfig) extends Actor with Logging {
   this: NoStateBehaviour with NotStartedBehaviour with FinishedBehaviour with InPreparationBehaviour with InPlayBehaviour with InCountingBehaviour =>
 
   override def receive: Receive = behaviour(GameNoState)

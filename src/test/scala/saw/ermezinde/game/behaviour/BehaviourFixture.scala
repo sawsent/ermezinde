@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.Duration
 import org.mockito.MockitoSugar.reset
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
-import saw.ermezinde.game.domain.game.GameActorState
+import saw.ermezinde.game.domain.game.state.GameActorState
 
 import scala.concurrent.Await
 

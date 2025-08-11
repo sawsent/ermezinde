@@ -4,10 +4,10 @@ import saw.ermezinde.game.GameActor
 import saw.ermezinde.game.GameActor.{GameActorCommand, GameActorResponse}
 import saw.ermezinde.game.behaviour.NoStateBehaviour.CreateGameCommand
 import saw.ermezinde.game.behaviour.fallback.WrongStateFallback
-import saw.ermezinde.game.domain.game.GameActorState.PlayerId
-import saw.ermezinde.game.domain.game.{GameActorState, GameNoState, NotStartedGameState}
-import saw.ermezinde.game.domain.game.NotStartedGameState.NotStartedPlayerModel
+import saw.ermezinde.game.domain.game.state.GameActorState.PlayerId
+import saw.ermezinde.game.domain.game.state.NotStartedGameState.NotStartedPlayerModel
 import saw.ermezinde.game.domain.game.model.NotStartedGameModel
+import saw.ermezinde.game.domain.game.state.{GameActorState, GameNoState, NotStartedGameState}
 import saw.ermezinde.game.domain.player.PlayerModel.Color
 import saw.ermezinde.util.logging.BehaviourLogging
 
@@ -33,7 +33,7 @@ trait NoStateBehaviour extends BehaviourLogging {
   def createGame(gameId: String, gameOwnerId: PlayerId): GameActorResponse = {
     Either.cond(!(gameId.isBlank || gameOwnerId.isBlank), (gameId, gameOwnerId), "GameId or GameOwnerId cannot be blank")
       .map { case (gameId, ownerId) =>
-        val model = NotStartedGameModel()
+        val model = NotStartedGameModel(defaultConfig)
         val updatedState = NotStartedGameState(
           gameId,
           ownerId,

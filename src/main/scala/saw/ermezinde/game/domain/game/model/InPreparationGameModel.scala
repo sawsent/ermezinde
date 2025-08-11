@@ -1,5 +1,6 @@
 package saw.ermezinde.game.domain.game.model
 
+import saw.ermezinde.game.domain.GameConfig
 import saw.ermezinde.game.domain.card.MissionCard
 import saw.ermezinde.game.domain.player.PlayerModel
 import saw.ermezinde.game.domain.player.PlayerModel.Color.{BLUE, GREEN}
@@ -8,11 +9,12 @@ import saw.ermezinde.game.domain.player.PlayerModel.PlayerModelId
 import scala.util.Random
 
 object InPreparationGameModel {
-  def init(players: List[PlayerModelId]): InPreparationGameModel = {
+  def init(model: NotStartedGameModel, players: List[PlayerModelId]): InPreparationGameModel = {
     // val playerOrdering = Random.shuffle(model.players.keys.toList)
     val playerOrdering = List(BLUE, GREEN)
 
     InPreparationGameModel(
+      model.config,
       players.map(p => p -> PlayerModel.init(p)).toMap,
       playerOrdering,
       List.empty,
@@ -22,6 +24,7 @@ object InPreparationGameModel {
   }
 }
 case class InPreparationGameModel(
+                                   config: GameConfig,
                                    players: Map[PlayerModelId, PlayerModel],
                                    playerOrdering: List[PlayerModelId],
                                    missionCards: List[MissionCard],

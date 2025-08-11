@@ -1,9 +1,15 @@
 package saw.ermezinde.game.behaviour.inplay
 
-import org.apache.pekko.actor.Actor.Receive
-import saw.ermezinde.game.domain.game.GameState
+import saw.ermezinde.game.GameActor.GameActorResponse
+import saw.ermezinde.game.behaviour.InPlayBehaviour.InPlayGameCommand
+import saw.ermezinde.game.behaviour.inplay.ResolvePhaseBehaviour.ResolvePhaseCommand
+import saw.ermezinde.game.domain.game.state.GameState
 
+object ResolvePhaseBehaviour {
+  sealed trait ResolvePhaseCommand extends InPlayGameCommand
+}
 trait ResolvePhaseBehaviour {
-  def resolveBehaviour(state: GameState): Receive = _ => ()
+  def resolveBehaviour(state: GameState, cmd: ResolvePhaseCommand): GameActorResponse =
+    Left("Not Implemented")
 
 }

@@ -1,7 +1,7 @@
 package saw.ermezinde.game.domain.result
 
 import saw.ermezinde.game.domain.card.MissionCard
-import saw.ermezinde.game.domain.game.GameActorState.PlayerId
+import saw.ermezinde.game.domain.game.state.GameActorState.PlayerId
 import saw.ermezinde.game.domain.player.PlayerModel.PlayerModelId
 
 object ResultTable {

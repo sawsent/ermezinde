@@ -6,21 +6,22 @@ import org.apache.pekko.pattern.ask
 import org.apache.pekko.util.Timeout
 import saw.ermezinde.game.GameActor
 import saw.ermezinde.game.GameActor.{GameActorCommand, GameActorResponse}
-import saw.ermezinde.game.behaviour.InCountingBehaviour.{PlayerReadyToFinish, PlayerRevealDiscarded, PlayerRevealHand, PlayerRevealMedals, PlayerRevealMissionPoints}
+import saw.ermezinde.game.behaviour.FinishedBehaviour.GetResults
+import saw.ermezinde.game.behaviour.InCountingBehaviour._
 import saw.ermezinde.game.behaviour.InPreparationBehaviour.{GetReadyForInPlay, SelectMissionCard}
 import saw.ermezinde.game.behaviour.NoStateBehaviour.CreateGameCommand
 import saw.ermezinde.game.behaviour.NotStartedBehaviour.{PlayerJoinGame, PlayerReady, PlayerSelectColor, StartGame}
 import saw.ermezinde.game.domain.GameConfig
 import saw.ermezinde.game.domain.card.MissionCard
-import saw.ermezinde.game.domain.game.GameActorState.{PlayerId, Timestamp}
-import saw.ermezinde.game.domain.game.{DiscardPhaseGameState, GamePhase, InCountingGameState, InPlayGameState}
-import saw.ermezinde.game.domain.game.model.{DiscardPhaseGameModel, InPlayGameModel}
+import saw.ermezinde.game.domain.game.model.DiscardPhaseGameModel
+import saw.ermezinde.game.domain.game.state.{DiscardPhaseGameState, InCountingGameState}
 import saw.ermezinde.game.domain.player.PlayerModel
+import saw.ermezinde.game.domain.player.PlayerModel.Color
 import saw.ermezinde.game.domain.player.PlayerModel.Color.{BLUE, GREEN}
-import saw.ermezinde.game.domain.player.PlayerModel.{Color, PlayerModelId}
 
 import scala.concurrent.Await
-import scala.concurrent.duration.{Duration, DurationInt, SECONDS}
+import scala.concurrent.duration.{Duration, DurationInt, MILLISECONDS}
+import scala.util.{Failure, Success, Try}
 
 object Boot extends App {
   println("####### Starting Ermezinde Server #######")
@@ -30,12 +31,14 @@ object Boot extends App {
   implicit val system: ActorSystem = ActorSystem("ermezinde")
 
   private val testGameActor = system.actorOf(GameActor.props(GameConfig.default))
-  implicit val timeout: Timeout = Timeout(1.seconds)
-  val duration = Duration(1, SECONDS)
+  implicit val timeout: Timeout = Timeout(100.millis)
+  val duration = Duration(100, MILLISECONDS)
 
   def printResponse(cmd: GameActorCommand): Unit = {
-    val response = Await.result(testGameActor ? cmd, duration).asInstanceOf[GameActorResponse]
-    println(response)
+    Try(Await.result(testGameActor ? cmd, duration).asInstanceOf[GameActorResponse]) match {
+      case Failure(_) => println(s"Failure on cmd: $cmd")
+      case Success(value) => println(value)
+    }
   }
 
   def send(any: Any): Unit = {
@@ -67,20 +70,28 @@ object Boot extends App {
   printResponse(GetReadyForInPlay(ownerId))
   printResponse(GetReadyForInPlay("sebas"))
 
+  Thread.sleep(500)
+  send("get")
+
+  println()
+  println("-------------------------------------")
+  println()
+
 
   val inPlay = DiscardPhaseGameState(
     id = "1234",
     ownerId = ownerId,
-    gameStartTime = None,
+    gameStartTime = Some(System.currentTimeMillis()),
     players = Map(ownerId -> BLUE, "sebas" -> GREEN),
     game = DiscardPhaseGameModel(
+      GameConfig.default,
       round = 4,
       players = Map(BLUE -> PlayerModel.init(BLUE), GREEN -> PlayerModel.init(GREEN)),
       missionCards = MissionCard.defaultDeck
     )
   )
 
-  send(InCountingGameState.init(inPlay))
+  printResponse(GetResults)
 
   printResponse(PlayerReadyToFinish(ownerId))
   printResponse(PlayerRevealDiscarded(ownerId))
@@ -111,7 +122,8 @@ object Boot extends App {
   printResponse(PlayerReadyToFinish(ownerId))
   printResponse(PlayerReadyToFinish("sebas"))
 
-  send("get")
+  printResponse(PlayerReadyToFinish("sebas"))
 
+  printResponse(GetResults)
 
 }

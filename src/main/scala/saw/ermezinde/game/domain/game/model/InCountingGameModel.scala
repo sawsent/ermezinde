@@ -1,5 +1,6 @@
 package saw.ermezinde.game.domain.game.model
 
+import saw.ermezinde.game.domain.GameConfig
 import saw.ermezinde.game.domain.card.MissionCard
 import saw.ermezinde.game.domain.player.PlayerModel
 import saw.ermezinde.game.domain.player.PlayerModel.PlayerModelId
@@ -11,12 +12,14 @@ object InCountingGameModel {
 
   def init(model: InPlayGameModel): InCountingGameModel = {
     InCountingGameModel(
+      model.config,
       players = model.players,
       missionCards = model.missionCards
     )
   }
 }
 case class InCountingGameModel(
+                                config: GameConfig,
                                 players: Map[PlayerModelId, PlayerModel],
                                 missionCards: List[MissionCard]
                               ) extends GameModel {

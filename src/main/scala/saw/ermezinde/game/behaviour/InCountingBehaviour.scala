@@ -5,9 +5,9 @@ import saw.ermezinde.game.GameActor.{GameActorCommand, GameActorResponse, GameFa
 import saw.ermezinde.game.behaviour.InCountingBehaviour.{InCountingGameCommand, PlayerReadyToFinish, PlayerRevealDiscarded, PlayerRevealHand, PlayerRevealMedals, PlayerRevealMissionPoints, RevealCommand}
 import saw.ermezinde.game.behaviour.fallback.WrongStateFallback
 import saw.ermezinde.game.domain.card.MissionCard
-import saw.ermezinde.game.domain.game.GameActorState.PlayerId
-import saw.ermezinde.game.domain.game.InCountingGameState.RevealPhase.{ALL_REVEALED, REVEAL_DISCARDED, REVEAL_HAND, REVEAL_MEDALS, REVEAL_MISSIONS, RevealPhase}
-import saw.ermezinde.game.domain.game.{FinishedGameState, GameActorState, InCountingGameState}
+import saw.ermezinde.game.domain.game.state.{FinishedGameState, GameActorState, InCountingGameState}
+import saw.ermezinde.game.domain.game.state.GameActorState.PlayerId
+import saw.ermezinde.game.domain.game.state.InCountingGameState.RevealPhase.{ALL_REVEALED, REVEAL_DISCARDED, REVEAL_HAND, REVEAL_MEDALS, REVEAL_MISSIONS, RevealPhase}
 import saw.ermezinde.game.syntax.Validate
 import saw.ermezinde.util.logging.BehaviourLogging
 import saw.ermezinde.game.validation.PlayerIdValidation.PlayerIdValidation

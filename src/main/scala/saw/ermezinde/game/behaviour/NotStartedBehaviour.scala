@@ -4,9 +4,9 @@ import saw.ermezinde.game.GameActor
 import saw.ermezinde.game.GameActor.{GameActorCommand, GameActorResponse, GameFailureResponse}
 import saw.ermezinde.game.behaviour.NotStartedBehaviour._
 import saw.ermezinde.game.behaviour.fallback.WrongStateFallback
-import saw.ermezinde.game.domain.game.{GameActorState, InPreparationGameState, NotStartedGameState}
-import saw.ermezinde.game.domain.game.GameActorState.PlayerId
-import saw.ermezinde.game.domain.game.NotStartedGameState.NotStartedPlayerModel
+import saw.ermezinde.game.domain.game.state.GameActorState.PlayerId
+import saw.ermezinde.game.domain.game.state.NotStartedGameState.NotStartedPlayerModel
+import saw.ermezinde.game.domain.game.state.{GameActorState, InPreparationGameState, NotStartedGameState}
 import saw.ermezinde.game.domain.player.PlayerModel.Color
 import saw.ermezinde.game.domain.player.PlayerModel.Color.UNSET
 import saw.ermezinde.game.syntax.Validate
@@ -125,7 +125,7 @@ trait NotStartedBehaviour extends BehaviourLogging {
       ).map {
         val startedTimestamp = System.currentTimeMillis()
 
-        println(s"starting game $game")
+        logger.info(s"Starting game ${game.id}")
         val updatedState = InPreparationGameState.init(game, startedTimestamp)
         context.become(behaviour(updatedState))
 

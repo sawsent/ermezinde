@@ -1,8 +1,8 @@
 package saw.ermezinde.game.validation
 
 import saw.ermezinde.game.GameActor.GameFailureResponse
-import saw.ermezinde.game.domain.game.GameActorState.PlayerId
-import saw.ermezinde.game.domain.game.GameState
+import saw.ermezinde.game.domain.game.state.GameActorState.PlayerId
+import saw.ermezinde.game.domain.game.state.GameState
 
 object PlayerIdValidation {
   implicit class PlayerIdValidation(playerId: PlayerId) {

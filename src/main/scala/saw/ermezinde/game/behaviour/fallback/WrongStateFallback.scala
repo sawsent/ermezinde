@@ -1,7 +1,7 @@
 package saw.ermezinde.game.behaviour.fallback
 
 import saw.ermezinde.game.GameActor.GameActorCommand
-import saw.ermezinde.game.domain.game.GameActorState
+import saw.ermezinde.game.domain.game.state.GameActorState
 import saw.ermezinde.util.logging.BehaviourLogging
 
 trait WrongStateFallback extends BehaviourLogging {
