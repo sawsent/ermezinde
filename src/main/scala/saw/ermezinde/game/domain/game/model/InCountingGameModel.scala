@@ -8,6 +8,7 @@ import saw.ermezinde.game.domain.result.PlayerResults
 import scala.math.ceil
 
 object InCountingGameModel {
+
   def init(model: InPlayGameModel): InCountingGameModel = {
     InCountingGameModel(
       players = model.players,
@@ -30,7 +31,7 @@ case class InCountingGameModel(
         missionCard -> playerToResultMap.filter(_._2 >= topScore)
       }
       .map { case (missionCard, playerToTopResults) =>
-        val toAward = ceil(config.medalsPerMissionCard / playerToTopResults.values.toList.length).toInt
+        val toAward = ceil(config.medalsPerMissionCard / playerToTopResults.toList.length).toInt
         missionCard -> playerToTopResults.map { case (id, _) =>
           id -> toAward
         }
@@ -41,7 +42,8 @@ case class InCountingGameModel(
         discardedAmount = model.discarded.length,
         medals = model.medalsInHand,
         missionCardPoints = missionCards.map(mc => mc -> mc.pointsInHand(model.hand)).toMap,
-        missionCardAwards = missionCards.map(mc => missionCardWinners(mc).getOrElse(id, 0)).sum
+        missionCardAwards = missionCards.map(mc => missionCardWinners(mc).getOrElse(id, 0)).sum,
+        model.hand
       )
     }
   }

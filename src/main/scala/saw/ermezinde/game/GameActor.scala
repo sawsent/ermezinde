@@ -6,6 +6,7 @@ import saw.ermezinde.game.behaviour.fallback.WrongStateFallback
 import saw.ermezinde.game.domain.GameConfig
 import saw.ermezinde.game.domain.game.{GameActorState, GameNoState, GameState}
 import saw.ermezinde.util.logging.Logging
+import spray.json.JsNull.prettyPrint
 
 object GameActor {
   def props(config: GameConfig): Props = Props(
@@ -40,7 +41,8 @@ class GameActor(val config: GameConfig) extends Actor with Logging {
 
   def common(state: GameActorState): Receive = {
     case state: GameActorState => context.become(behaviour(state))
-    case "getState" => sender() ! state
+    case "get" =>
+      println(state)
     case msg => logger.info(s"GameActor Received unknown message: $msg while with state: $state")
   }
 }

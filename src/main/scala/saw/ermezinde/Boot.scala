@@ -6,11 +6,18 @@ import org.apache.pekko.pattern.ask
 import org.apache.pekko.util.Timeout
 import saw.ermezinde.game.GameActor
 import saw.ermezinde.game.GameActor.{GameActorCommand, GameActorResponse}
+import saw.ermezinde.game.behaviour.InCountingBehaviour.{PlayerReadyToFinish, PlayerRevealDiscarded, PlayerRevealHand, PlayerRevealMedals, PlayerRevealMissionPoints}
 import saw.ermezinde.game.behaviour.InPreparationBehaviour.{GetReadyForInPlay, SelectMissionCard}
 import saw.ermezinde.game.behaviour.NoStateBehaviour.CreateGameCommand
 import saw.ermezinde.game.behaviour.NotStartedBehaviour.{PlayerJoinGame, PlayerReady, PlayerSelectColor, StartGame}
 import saw.ermezinde.game.domain.GameConfig
-import saw.ermezinde.game.domain.player.PlayerModel.Color
+import saw.ermezinde.game.domain.card.MissionCard
+import saw.ermezinde.game.domain.game.GameActorState.{PlayerId, Timestamp}
+import saw.ermezinde.game.domain.game.{DiscardPhaseGameState, GamePhase, InCountingGameState, InPlayGameState}
+import saw.ermezinde.game.domain.game.model.{DiscardPhaseGameModel, InPlayGameModel}
+import saw.ermezinde.game.domain.player.PlayerModel
+import saw.ermezinde.game.domain.player.PlayerModel.Color.{BLUE, GREEN}
+import saw.ermezinde.game.domain.player.PlayerModel.{Color, PlayerModelId}
 
 import scala.concurrent.Await
 import scala.concurrent.duration.{Duration, DurationInt, SECONDS}
@@ -29,6 +36,10 @@ object Boot extends App {
   def printResponse(cmd: GameActorCommand): Unit = {
     val response = Await.result(testGameActor ? cmd, duration).asInstanceOf[GameActorResponse]
     println(response)
+  }
+
+  def send(any: Any): Unit = {
+    testGameActor ! any
   }
 
 
@@ -56,6 +67,51 @@ object Boot extends App {
   printResponse(GetReadyForInPlay(ownerId))
   printResponse(GetReadyForInPlay("sebas"))
 
+
+  val inPlay = DiscardPhaseGameState(
+    id = "1234",
+    ownerId = ownerId,
+    gameStartTime = None,
+    players = Map(ownerId -> BLUE, "sebas" -> GREEN),
+    game = DiscardPhaseGameModel(
+      round = 4,
+      players = Map(BLUE -> PlayerModel.init(BLUE), GREEN -> PlayerModel.init(GREEN)),
+      missionCards = MissionCard.defaultDeck
+    )
+  )
+
+  send(InCountingGameState.init(inPlay))
+
+  printResponse(PlayerReadyToFinish(ownerId))
+  printResponse(PlayerRevealDiscarded(ownerId))
+  printResponse(PlayerRevealDiscarded(ownerId))
+  printResponse(PlayerRevealDiscarded("sebas"))
+  printResponse(PlayerRevealDiscarded(ownerId))
+
+  printResponse(PlayerRevealMedals("sebas"))
+  printResponse(PlayerRevealMedals(ownerId))
+  printResponse(PlayerRevealMedals(ownerId))
+
+  printResponse(PlayerRevealMissionPoints("sebas"))
+  printResponse(PlayerRevealMissionPoints(ownerId))
+  printResponse(PlayerRevealMissionPoints("sebas"))
+  printResponse(PlayerRevealMissionPoints(ownerId))
+  printResponse(PlayerRevealMissionPoints("sebas"))
+  printResponse(PlayerRevealMissionPoints(ownerId))
+  printResponse(PlayerRevealMissionPoints("sebas"))
+  printResponse(PlayerRevealMissionPoints(ownerId))
+  printResponse(PlayerRevealMissionPoints("sebas"))
+  printResponse(PlayerRevealMissionPoints(ownerId))
+
+  printResponse(PlayerRevealHand("sebas"))
+  printResponse(PlayerRevealHand(ownerId))
+  printResponse(PlayerRevealHand(ownerId))
+
+  printResponse(PlayerReadyToFinish(ownerId))
+  printResponse(PlayerReadyToFinish(ownerId))
+  printResponse(PlayerReadyToFinish("sebas"))
+
+  send("get")
 
 
 }
