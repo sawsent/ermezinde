@@ -1,6 +1,6 @@
-package saw.ermezinde.game.domain.state.result
+package saw.ermezinde.game.domain.result
 
-import saw.ermezinde.game.domain.state.card.MissionCard
+import saw.ermezinde.game.domain.card.MissionCard
 
 object PlayerResults {
   def hidden(discardedAmount: Int, medals: Int, missionCardPoints: Map[MissionCard, Int], missionCardAwards: Int): PlayerResults =

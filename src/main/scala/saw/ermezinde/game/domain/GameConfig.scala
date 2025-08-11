@@ -1,4 +1,4 @@
-package saw.ermezinde.game.domain.state
+package saw.ermezinde.game.domain
 
 object GameConfig {
   def default: GameConfig = GameConfig(

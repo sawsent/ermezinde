@@ -4,11 +4,11 @@ import saw.ermezinde.game.GameActor
 import saw.ermezinde.game.GameActor.{GameActorCommand, GameActorResponse, GameFailureResponse}
 import saw.ermezinde.game.behaviour.NotStartedBehaviour._
 import saw.ermezinde.game.behaviour.fallback.WrongStateFallback
-import saw.ermezinde.game.domain.state.game.GameActorState.PlayerId
-import saw.ermezinde.game.domain.state.game.NotStartedGameState.NotStartedPlayerModel
-import saw.ermezinde.game.domain.state.game.{GameActorState, InPreparationGameState, NotStartedGameState}
-import saw.ermezinde.game.domain.state.player.PlayerModel.Color
-import saw.ermezinde.game.domain.state.player.PlayerModel.Color.UNSET
+import saw.ermezinde.game.domain.game.{GameActorState, InPreparationGameState, NotStartedGameState}
+import saw.ermezinde.game.domain.game.GameActorState.PlayerId
+import saw.ermezinde.game.domain.game.NotStartedGameState.NotStartedPlayerModel
+import saw.ermezinde.game.domain.player.PlayerModel.Color
+import saw.ermezinde.game.domain.player.PlayerModel.Color.UNSET
 import saw.ermezinde.game.syntax.Validate
 import saw.ermezinde.game.validation.GameStateValidation.StateValidation
 import saw.ermezinde.game.validation.PlayerIdValidation.PlayerIdValidation

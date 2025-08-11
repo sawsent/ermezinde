@@ -1,4 +1,4 @@
-package saw.ermezinde.game.domain.state.card
+package saw.ermezinde.game.domain.card
 
 trait Card {
   val strength: Int

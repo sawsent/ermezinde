@@ -1,7 +1,7 @@
-package saw.ermezinde.game.domain.state.player
+package saw.ermezinde.game.domain.player
 
-import saw.ermezinde.game.domain.state.card.Card
-import saw.ermezinde.game.domain.state.player.PlayerModel.PlayerModelId
+import PlayerModel.PlayerModelId
+import saw.ermezinde.game.domain.card.Card
 
 object PlayerModel {
   type PlayerModelId = Color

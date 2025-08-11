@@ -1,4 +1,4 @@
-package saw.ermezinde.game.domain.state.result
+package saw.ermezinde.game.domain.result
 
 trait Result {
   val value: Option[Int]

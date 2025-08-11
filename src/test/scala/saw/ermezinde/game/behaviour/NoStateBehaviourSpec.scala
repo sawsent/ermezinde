@@ -5,15 +5,16 @@ import org.apache.pekko.pattern.ask
 import org.scalatest.flatspec.AnyFlatSpecLike
 import saw.ermezinde.game.GameActor
 import saw.ermezinde.game.behaviour.fallback.WrongStateFallback
-import saw.ermezinde.game.domain.state.game.{GameActorState, GameNoState, NotStartedGameModel, NotStartedGameState}
 import org.apache.pekko.testkit.{TestKit, TestProbe}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.MockitoSugar.verify
 import org.scalatest.matchers.should.Matchers
 import saw.ermezinde.game.GameActor.{GameFailureResponse, GameSuccessResponse}
 import saw.ermezinde.game.behaviour.NoStateBehaviour.CreateGameCommand
-import saw.ermezinde.game.domain.state.game.NotStartedGameState.NotStartedPlayerModel
-import saw.ermezinde.game.domain.state.player.PlayerModel.Color.UNSET
+import saw.ermezinde.game.domain.GameConfig
+import saw.ermezinde.game.domain.game.{GameActorState, GameNoState, NotStartedGameModel, NotStartedGameState}
+import saw.ermezinde.game.domain.game.NotStartedGameState.NotStartedPlayerModel
+import saw.ermezinde.game.domain.player.PlayerModel.Color.UNSET
 
 import scala.concurrent.Await
 
@@ -21,13 +22,13 @@ import scala.concurrent.Await
 class NoStateBehaviourSpec extends TestKit(ActorSystem("NoStateBehaviour")) with AnyFlatSpecLike with Matchers {
 
   trait NoStateBehaviourFixture extends BehaviourFixture {
-    class Victim() extends GameActor with NoStateBehaviour with DoNothingNotStartedBehaviour with DoNothingInPreparationBehaviour with DoNothingInPlayBehaviour
+    class Victim(config: GameConfig) extends GameActor(config) with NoStateBehaviour with DoNothingNotStartedBehaviour with DoNothingInPreparationBehaviour with DoNothingInPlayBehaviour
       with DoNothingInCountingBehaviour with DoNothingFinishedBehaviour with TestWrongStateFallback with TestDebugBehaviour {
 
       override protected def gameBehaviour(state: GameActorState): Receive = noStateBehaviour(state)
     }
 
-    val victim: ActorRef = system.actorOf(Props(new Victim()))
+    val victim: ActorRef = system.actorOf(Props(new Victim(GameConfig.default)))
 
   }
 
@@ -64,7 +65,9 @@ class NoStateBehaviourSpec extends TestKit(ActorSystem("NoStateBehaviour")) with
   }
 
   it should "use fallback wrong state when it has another state" in new NoStateBehaviourFixture {
-    case object TestState extends GameActorState
+    case object TestState extends GameActorState {
+      override val id: GameFailureResponse = "test"
+    }
 
     victim ! TestDebugBehaviour.SetState(TestState)
     val command = CreateGameCommand("hello", "world")

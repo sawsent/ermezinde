@@ -4,10 +4,10 @@ import saw.ermezinde.game.GameActor
 import saw.ermezinde.game.GameActor.{GameActorCommand, GameActorResponse}
 import saw.ermezinde.game.behaviour.NoStateBehaviour.CreateGameCommand
 import saw.ermezinde.game.behaviour.fallback.WrongStateFallback
-import saw.ermezinde.game.domain.state.game.GameActorState.PlayerId
-import saw.ermezinde.game.domain.state.game.NotStartedGameState.NotStartedPlayerModel
-import saw.ermezinde.game.domain.state.game.{GameActorState, GameNoState, NotStartedGameModel, NotStartedGameState}
-import saw.ermezinde.game.domain.state.player.PlayerModel.Color
+import saw.ermezinde.game.domain.game.GameActorState.PlayerId
+import saw.ermezinde.game.domain.game.{GameActorState, GameNoState, NotStartedGameModel, NotStartedGameState}
+import saw.ermezinde.game.domain.game.NotStartedGameState.NotStartedPlayerModel
+import saw.ermezinde.game.domain.player.PlayerModel.Color
 import saw.ermezinde.util.logging.BehaviourLogging
 
 object NoStateBehaviour {

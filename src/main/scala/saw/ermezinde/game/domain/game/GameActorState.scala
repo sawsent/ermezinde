@@ -1,11 +1,9 @@
-package saw.ermezinde.game.domain.state.game
+package saw.ermezinde.game.domain.game
 
-import saw.ermezinde.game.domain.state.card.MissionCard
-import saw.ermezinde.game.domain.state.game.GameActorState.{PlayerId, Timestamp}
-import saw.ermezinde.game.domain.state.game.NotStartedGameState.NotStartedPlayerModel
-import saw.ermezinde.game.domain.state.player.PlayerModel
-import saw.ermezinde.game.domain.state.player.PlayerModel.{Color, PlayerModelId}
-import saw.ermezinde.game.domain.state.result.ResultTable
+import saw.ermezinde.game.domain.result.ResultTable
+import GameActorState.{PlayerId, Timestamp}
+import NotStartedGameState.NotStartedPlayerModel
+import saw.ermezinde.game.domain.player.PlayerModel.{Color, PlayerModelId}
 
 object GameActorState {
   type PlayerId = String

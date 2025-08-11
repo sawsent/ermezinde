@@ -4,8 +4,8 @@ import saw.ermezinde.game.GameActor
 import saw.ermezinde.game.GameActor.{GameActorCommand, GameActorResponse, GameFailureResponse}
 import saw.ermezinde.game.behaviour.InPreparationBehaviour.{GetReadyForInPlay, InPreparationGameCommand, SelectMissionCard}
 import saw.ermezinde.game.behaviour.fallback.WrongStateFallback
-import saw.ermezinde.game.domain.state.game.GameActorState.PlayerId
-import saw.ermezinde.game.domain.state.game.{GameActorState, InPreparationGameState}
+import saw.ermezinde.game.domain.game.{GameActorState, InPreparationGameState}
+import saw.ermezinde.game.domain.game.GameActorState.PlayerId
 import saw.ermezinde.game.syntax.Validate
 import saw.ermezinde.game.validation.PlayerIdValidation.PlayerIdValidation
 import saw.ermezinde.util.logging.BehaviourLogging

@@ -1,12 +1,12 @@
-package saw.ermezinde.game.domain.state.game
+package saw.ermezinde.game.domain.game
 
-import saw.ermezinde.game.domain.state.GameConfig
-import saw.ermezinde.game.domain.state.board.{PlacePhaseBoardModel, PreparationPhaseBoardModel, ResolvePhaseBoardModel}
-import saw.ermezinde.game.domain.state.card.MissionCard
-import saw.ermezinde.game.domain.state.player.PlayerModel
-import saw.ermezinde.game.domain.state.player.PlayerModel.Color.{BLUE, GREEN}
-import saw.ermezinde.game.domain.state.player.PlayerModel.PlayerModelId
-import saw.ermezinde.game.domain.state.result.PlayerResults
+import saw.ermezinde.game.domain.player.PlayerModel
+import PlayerModel.Color.{BLUE, GREEN}
+import PlayerModel.PlayerModelId
+import saw.ermezinde.game.domain.GameConfig
+import saw.ermezinde.game.domain.board.{PlacePhaseBoardModel, PreparationPhaseBoardModel, ResolvePhaseBoardModel}
+import saw.ermezinde.game.domain.card.MissionCard
+import saw.ermezinde.game.domain.result.PlayerResults
 
 import scala.math.ceil
 import scala.util.Random

@@ -3,8 +3,8 @@ package saw.ermezinde.game
 import org.apache.pekko.actor.{Actor, Props}
 import saw.ermezinde.game.behaviour._
 import saw.ermezinde.game.behaviour.fallback.WrongStateFallback
-import saw.ermezinde.game.domain.state.GameConfig
-import saw.ermezinde.game.domain.state.game.{GameActorState, GameNoState, GameState}
+import saw.ermezinde.game.domain.GameConfig
+import saw.ermezinde.game.domain.game.{GameActorState, GameNoState, GameState}
 import saw.ermezinde.util.logging.Logging
 
 object GameActor {

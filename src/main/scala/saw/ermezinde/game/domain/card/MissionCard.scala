@@ -1,4 +1,4 @@
-package saw.ermezinde.game.domain.state.card
+package saw.ermezinde.game.domain.card
 
 object MissionCard {
   def defaultDeck: List[MissionCard] = List(new MissionCard {}, new MissionCard {}, new MissionCard {}, new MissionCard {})

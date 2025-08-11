@@ -9,8 +9,8 @@ import saw.ermezinde.game.GameActor.{GameActorCommand, GameActorResponse}
 import saw.ermezinde.game.behaviour.InPreparationBehaviour.{GetReadyForInPlay, SelectMissionCard}
 import saw.ermezinde.game.behaviour.NoStateBehaviour.CreateGameCommand
 import saw.ermezinde.game.behaviour.NotStartedBehaviour.{PlayerJoinGame, PlayerReady, PlayerSelectColor, StartGame}
-import saw.ermezinde.game.domain.state.GameConfig
-import saw.ermezinde.game.domain.state.player.PlayerModel.Color
+import saw.ermezinde.game.domain.GameConfig
+import saw.ermezinde.game.domain.player.PlayerModel.Color
 
 import scala.concurrent.Await
 import scala.concurrent.duration.{Duration, DurationInt, SECONDS}
@@ -55,5 +55,7 @@ object Boot extends App {
   printResponse(GetReadyForInPlay(ownerId))
   printResponse(GetReadyForInPlay(ownerId))
   printResponse(GetReadyForInPlay("sebas"))
+
+
 
 }

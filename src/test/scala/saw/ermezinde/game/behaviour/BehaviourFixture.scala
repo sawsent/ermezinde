@@ -8,12 +8,12 @@ import org.scalatest.time.SpanSugar.convertIntToGrainOfTime
 import saw.ermezinde.game.GameActor
 import saw.ermezinde.game.GameActor.GameActorCommand
 import saw.ermezinde.game.behaviour.fallback.WrongStateFallback
-import saw.ermezinde.game.domain.state.game.GameActorState
 
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.Duration
 import org.mockito.MockitoSugar.reset
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import saw.ermezinde.game.domain.game.GameActorState
 
 import scala.concurrent.Await
 

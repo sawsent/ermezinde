@@ -1,4 +1,4 @@
-package saw.ermezinde.game.domain.state.board
+package saw.ermezinde.game.domain.board
 
 trait BoardModel
 

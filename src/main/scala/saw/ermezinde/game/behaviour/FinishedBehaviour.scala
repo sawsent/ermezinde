@@ -2,7 +2,7 @@ package saw.ermezinde.game.behaviour
 
 import org.apache.pekko.actor.Actor.Receive
 import saw.ermezinde.game.behaviour.FinishedBehaviour.FinishedGameCommand
-import saw.ermezinde.game.domain.state.game.GameActorState
+import saw.ermezinde.game.domain.game.GameActorState
 import saw.ermezinde.util.logging.BehaviourLogging
 
 object FinishedBehaviour {

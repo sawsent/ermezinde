@@ -1,4 +1,4 @@
-package saw.ermezinde.game.domain.state.game
+package saw.ermezinde.game.domain.game
 
 sealed trait GameStep {
   val isNotStarted: Boolean = false
