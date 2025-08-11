@@ -12,8 +12,9 @@ import org.scalatest.matchers.should.Matchers
 import saw.ermezinde.game.GameActor.{GameFailureResponse, GameSuccessResponse}
 import saw.ermezinde.game.behaviour.NoStateBehaviour.CreateGameCommand
 import saw.ermezinde.game.domain.GameConfig
-import saw.ermezinde.game.domain.game.{GameActorState, GameNoState, NotStartedGameModel, NotStartedGameState}
+import saw.ermezinde.game.domain.game.{GameActorState, GameNoState, NotStartedGameState}
 import saw.ermezinde.game.domain.game.NotStartedGameState.NotStartedPlayerModel
+import saw.ermezinde.game.domain.game.model.NotStartedGameModel
 import saw.ermezinde.game.domain.player.PlayerModel.Color.UNSET
 
 import scala.concurrent.Await

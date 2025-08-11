@@ -3,6 +3,7 @@ package saw.ermezinde.game.domain.game
 import saw.ermezinde.game.domain.result.ResultTable
 import GameActorState.{PlayerId, Timestamp}
 import NotStartedGameState.NotStartedPlayerModel
+import saw.ermezinde.game.domain.game.model.{DiscardPhaseGameModel, FinishedGameModel, GameModel, InCountingGameModel, InPlayGameModel, InPreparationGameModel, NotStartedGameModel, PlacePhaseGameModel, PreparationPhaseGameModel, ResolvePhaseGameModel}
 import saw.ermezinde.game.domain.player.PlayerModel.{Color, PlayerModelId}
 
 object GameActorState {
