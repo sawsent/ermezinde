@@ -1,5 +1,6 @@
 package saw.ermezinde.game.domain.state.player
 
+import saw.ermezinde.game.domain.state.card.Card
 import saw.ermezinde.game.domain.state.player.PlayerModel.PlayerModelId
 
 object PlayerModel {
@@ -15,10 +16,16 @@ object PlayerModel {
     case object BLUE extends Color
     case object YELLOW extends Color
   }
+
+  def init(id: PlayerModelId): PlayerModel = PlayerModel(id)
 }
 case class PlayerModel(
-                      id: PlayerModelId
-                      )
+                      id: PlayerModelId,
+                      hand: List[Card] = List.empty,
+                      discarded: List[Card] = List.empty
+                      ) {
+  val medalsInHand: Int = hand.map(_.medals).sum
+}
 
 
 

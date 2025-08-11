@@ -3,7 +3,7 @@ package saw.ermezinde.game.behaviour
 import org.apache.pekko.actor.Actor.Receive
 import saw.ermezinde.game.behaviour.InPlayBehaviour.InPlayGameCommand
 import saw.ermezinde.game.behaviour.inplay.{DiscardPhaseBehaviour, PlacePhaseBehaviour, PreparationPhaseBehaviour, ResolvePhaseBehaviour}
-import saw.ermezinde.game.domain.state.game.{DiscardPhaseGameState, FinishedGameState, GameActorState, GameNoState, GameState, InCountingGameState, InPlayGameState, InPreparationGameState, NotStartedGameState, PlacePhaseGameState, PreparationPhaseGameState, ResolvePhaseGameState}
+import saw.ermezinde.game.domain.state.game._
 import saw.ermezinde.util.logging.BehaviourLogging
 
 object InPlayBehaviour {

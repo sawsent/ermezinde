@@ -5,6 +5,7 @@ import saw.ermezinde.game.domain.state.game.GameActorState.{PlayerId, Timestamp}
 import saw.ermezinde.game.domain.state.game.NotStartedGameState.NotStartedPlayerModel
 import saw.ermezinde.game.domain.state.player.PlayerModel
 import saw.ermezinde.game.domain.state.player.PlayerModel.{Color, PlayerModelId}
+import saw.ermezinde.game.domain.state.result.ResultTable
 
 object GameActorState {
   type PlayerId = String
@@ -23,8 +24,6 @@ sealed trait GameState extends GameActorState {
   val gameStartTime: Option[Timestamp]
   val players: Map[PlayerId, PlayerModelId]
   val game: GameModel
-  val gameStep: GameStep = game.step
-
 }
 
 object NotStartedGameState {
@@ -47,7 +46,7 @@ object InPreparationGameState {
       ownerId = state.ownerId,
       gameStartTime = Some(startTime),
       players = state.players,
-      game = InPreparationGameModel.init(state.game, state.players.values.toList),
+      game = InPreparationGameModel.init(state.players.values.toList),
       playersReady = Set.empty
     )
   }
@@ -99,12 +98,27 @@ case class DiscardPhaseGameState(
                                 ) extends InPlayGameState
 
 
+object InCountingGameState {
+  def init(state: InPlayGameState): InCountingGameState = {
+    val updateGame: InCountingGameModel = InCountingGameModel.init(state.game)
+    val resultTable = ResultTable.fromGameResults(state.players, updateGame.result)
+    InCountingGameState(
+      id = state.id,
+      ownerId = state.ownerId,
+      gameStartTime = state.gameStartTime,
+      players = state.players,
+      game = updateGame,
+      resultTable
+    )
+  }
+}
 case class InCountingGameState(
                                 id: String,
                                 ownerId: String,
                                 gameStartTime: Option[Timestamp],
                                 players: Map[PlayerId, PlayerModelId],
-                                game: InCountingGameModel
+                                game: InCountingGameModel,
+                                resultTable: ResultTable
                               ) extends GameState
 
 case class FinishedGameState(

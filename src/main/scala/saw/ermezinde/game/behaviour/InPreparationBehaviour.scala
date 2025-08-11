@@ -41,7 +41,7 @@ trait InPreparationBehaviour extends BehaviourLogging {
     cmd match {
       case SelectMissionCard(playerId, cardIndex) => Validate(
         state.isCardIndexAllowed(cardIndex),
-        state.lessThan4MissionCardsSelected,
+        state.notAllMissionCardsSelected,
         state.isPlayerMove(playerId)
       ).map {
         val updatedState = state.copy(
@@ -80,7 +80,7 @@ trait InPreparationBehaviour extends BehaviourLogging {
         "Card not available"
       )
 
-    def lessThan4MissionCardsSelected: Either[GameFailureResponse, Unit] =
+    def notAllMissionCardsSelected: Either[GameFailureResponse, Unit] =
       Either.cond(state.game.missionCards.length < 4, (), "4 mission cards are already selected")
 
     def allMissionCardsSelected: Either[GameFailureResponse, Unit] =

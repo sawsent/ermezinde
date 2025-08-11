@@ -9,6 +9,7 @@ import saw.ermezinde.game.GameActor.{GameActorCommand, GameActorResponse}
 import saw.ermezinde.game.behaviour.InPreparationBehaviour.{GetReadyForInPlay, SelectMissionCard}
 import saw.ermezinde.game.behaviour.NoStateBehaviour.CreateGameCommand
 import saw.ermezinde.game.behaviour.NotStartedBehaviour.{PlayerJoinGame, PlayerReady, PlayerSelectColor, StartGame}
+import saw.ermezinde.game.domain.state.GameConfig
 import saw.ermezinde.game.domain.state.player.PlayerModel.Color
 
 import scala.concurrent.Await
@@ -21,8 +22,8 @@ object Boot extends App {
 
   implicit val system: ActorSystem = ActorSystem("ermezinde")
 
-  private val testGameActor = system.actorOf(GameActor.props)
-  implicit val timeout = Timeout(1.seconds)
+  private val testGameActor = system.actorOf(GameActor.props(GameConfig.default))
+  implicit val timeout: Timeout = Timeout(1.seconds)
   val duration = Duration(1, SECONDS)
 
   def printResponse(cmd: GameActorCommand): Unit = {

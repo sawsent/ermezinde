@@ -125,6 +125,7 @@ trait NotStartedBehaviour extends BehaviourLogging {
       ).map {
         val startedTimestamp = System.currentTimeMillis()
 
+        println(s"starting game $game")
         val updatedState = InPreparationGameState.init(game, startedTimestamp)
         context.become(behaviour(updatedState))
 
