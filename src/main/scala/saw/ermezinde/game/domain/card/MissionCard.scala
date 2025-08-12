@@ -7,4 +7,6 @@ trait MissionCard {
   def pointsInHand(hand: List[Card]): Int = {
     0
   }
+
+  val medals: Int = 6
 }

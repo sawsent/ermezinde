@@ -1,14 +1,17 @@
 package saw.ermezinde.game.domain.board
 
-import saw.ermezinde.game.domain.GameConfig
-
-trait TableModel
-
 object PreparationPhaseTableModel {
-  def init(config: GameConfig): PreparationPhaseTableModel = {
-    PreparationPhaseTableModel()
+  def init: PreparationPhaseTableModel = {
+    PreparationPhaseTableModel(
+      BoardPosition.all.map(_ -> None).toMap
+    )
   }
 }
-case class PreparationPhaseTableModel()
+case class PreparationPhaseTableModel(
+                                     boards: Map[BoardPosition, Option[(Board, BoardRotation)]]
+                                     ) {
+  def positionAvailable(bp: BoardPosition): Boolean = boards(bp).isEmpty
+  def boardAt(bp: BoardPosition): Option[Board] = boards(bp).map(_._1)
+}
 case class PlacePhaseTableModel()
 case class ResolvePhaseTableModel()

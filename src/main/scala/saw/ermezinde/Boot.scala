@@ -4,6 +4,7 @@ import com.typesafe.config.ConfigFactory
 import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.pattern.ask
 import org.apache.pekko.util.Timeout
+import saw.ermezinde.adapter.config.Config2Card
 import saw.ermezinde.game.GameActor
 import saw.ermezinde.game.GameActor.{GameActorCommand, GameActorResponse}
 import saw.ermezinde.game.behaviour.FinishedBehaviour.GetResults
@@ -17,10 +18,11 @@ import saw.ermezinde.game.domain.game.model.DiscardPhaseGameModel
 import saw.ermezinde.game.domain.game.state.{DiscardPhaseGameState, InCountingGameState}
 import saw.ermezinde.game.domain.player.PlayerModel
 import saw.ermezinde.game.domain.player.PlayerModel.Color
-import saw.ermezinde.game.domain.player.PlayerModel.Color.{BLUE, GREEN}
+import saw.ermezinde.game.domain.player.PlayerModel.Color.{BLUE, RED}
 
 import scala.concurrent.Await
 import scala.concurrent.duration.{Duration, DurationInt, MILLISECONDS}
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.util.{Failure, Success, Try}
 
 object Boot extends App {
@@ -30,7 +32,16 @@ object Boot extends App {
 
   implicit val system: ActorSystem = ActorSystem("ermezinde")
 
-  private val testGameActor = system.actorOf(GameActor.props(GameConfig.default))
+  val deck = config.getConfigList("deck").asScala.toList.map(Config2Card.fromConfig).filter(_.isSuccess).map(_.toOption.get)
+
+
+  private val defaultGameConfig = GameConfig(
+    nrOfMissionCards = 4,
+    cards = deck,
+    boards = List.empty
+  )
+
+  private val testGameActor = system.actorOf(GameActor.props(defaultGameConfig))
   implicit val timeout: Timeout = Timeout(100.millis)
   val duration = Duration(100, MILLISECONDS)
 
@@ -51,7 +62,7 @@ object Boot extends App {
   printResponse(CreateGameCommand(gameId, ownerId))
 
   printResponse(PlayerJoinGame("sebas"))
-  printResponse(PlayerSelectColor("sebas", Color.GREEN))
+  printResponse(PlayerSelectColor("sebas", Color.RED))
   printResponse(PlayerSelectColor("vicente", Color.BLUE))
 
   printResponse(PlayerReady("vicente"))
@@ -70,7 +81,6 @@ object Boot extends App {
   printResponse(GetReadyForInPlay(ownerId))
   printResponse(GetReadyForInPlay("sebas"))
 
-  Thread.sleep(500)
   send("get")
 
   println()
@@ -82,11 +92,11 @@ object Boot extends App {
     id = "1234",
     ownerId = ownerId,
     gameStartTime = Some(System.currentTimeMillis()),
-    players = Map(ownerId -> BLUE, "sebas" -> GREEN),
+    players = Map(ownerId -> BLUE, "sebas" -> RED),
     game = DiscardPhaseGameModel(
       GameConfig.default,
       round = 4,
-      players = Map(BLUE -> PlayerModel.init(BLUE), GREEN -> PlayerModel.init(GREEN)),
+      players = Map(BLUE -> PlayerModel.init(BLUE), RED -> PlayerModel.init(RED)),
       missionCards = MissionCard.defaultDeck
     )
   )

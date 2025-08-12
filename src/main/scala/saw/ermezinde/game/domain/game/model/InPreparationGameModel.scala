@@ -3,15 +3,14 @@ package saw.ermezinde.game.domain.game.model
 import saw.ermezinde.game.domain.GameConfig
 import saw.ermezinde.game.domain.card.MissionCard
 import saw.ermezinde.game.domain.player.PlayerModel
-import saw.ermezinde.game.domain.player.PlayerModel.Color.{BLUE, GREEN}
 import saw.ermezinde.game.domain.player.PlayerModel.PlayerModelId
+import saw.ermezinde.util.Randomizer
 
 import scala.util.Random
 
 object InPreparationGameModel {
   def init(model: NotStartedGameModel, players: List[PlayerModelId]): InPreparationGameModel = {
-    // val playerOrdering = Random.shuffle(model.players.keys.toList)
-    val playerOrdering = List(BLUE, GREEN)
+    val playerOrdering = Randomizer.randomizePlayers(players)
 
     InPreparationGameModel(
       model.config,

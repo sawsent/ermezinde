@@ -34,7 +34,7 @@ case class InCountingGameModel(
         missionCard -> playerToResultMap.filter(_._2 >= topScore)
       }
       .map { case (missionCard, playerToTopResults) =>
-        val toAward = ceil(config.medalsPerMissionCard / playerToTopResults.toList.length).toInt
+        val toAward = ceil(missionCard.medals / playerToTopResults.toList.length).toInt
         missionCard -> playerToTopResults.map { case (id, _) =>
           id -> toAward
         }

@@ -1,3 +1,5 @@
 package saw.ermezinde.game.domain.board
 
-trait Board
+case class Board(
+                id: String
+                )
