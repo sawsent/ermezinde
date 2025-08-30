@@ -1,6 +1,25 @@
 package saw.ermezinde.game.domain.board
 
 object BoardPosition {
+  case object TOP_LEFT extends BoardPosition {
+    override val adjacents: List[BoardPosition] = List(TOP_MIDDLE, BOTTOM_LEFT)
+  }
+  case object TOP_MIDDLE extends BoardPosition {
+    override val adjacents: List[BoardPosition] = List(TOP_LEFT, TOP_RIGHT, BOTTOM_MIDDLE)
+  }
+  case object TOP_RIGHT extends BoardPosition {
+    override val adjacents: List[BoardPosition] = List(TOP_MIDDLE, BOTTOM_RIGHT)
+  }
+  case object BOTTOM_LEFT extends BoardPosition {
+    override val adjacents: List[BoardPosition] = List(TOP_LEFT, BOTTOM_MIDDLE)
+  }
+  case object BOTTOM_MIDDLE extends BoardPosition {
+    override val adjacents: List[BoardPosition] = List(BOTTOM_LEFT, BOTTOM_RIGHT, TOP_MIDDLE)
+  }
+  case object BOTTOM_RIGHT extends BoardPosition {
+    override val adjacents: List[BoardPosition] = List(BOTTOM_MIDDLE, TOP_RIGHT)
+  }
+
   object X {
     def fromString(str: String): X = str match {
       case "LEFT" => LEFT
@@ -36,23 +55,5 @@ object BoardPosition {
 }
 sealed trait BoardPosition {
   val adjacents: List[BoardPosition]
-}
-case object TOP_LEFT extends BoardPosition {
-  override val adjacents: List[BoardPosition] = List(TOP_MIDDLE, BOTTOM_LEFT)
-}
-case object TOP_MIDDLE extends BoardPosition {
-  override val adjacents: List[BoardPosition] = List(TOP_LEFT, TOP_RIGHT, BOTTOM_MIDDLE)
-}
-case object TOP_RIGHT extends BoardPosition {
-  override val adjacents: List[BoardPosition] = List(TOP_MIDDLE, BOTTOM_RIGHT)
-}
-case object BOTTOM_LEFT extends BoardPosition {
-  override val adjacents: List[BoardPosition] = List(TOP_LEFT, BOTTOM_MIDDLE)
-}
-case object BOTTOM_MIDDLE extends BoardPosition {
-  override val adjacents: List[BoardPosition] = List(BOTTOM_LEFT, BOTTOM_RIGHT, TOP_MIDDLE)
-}
-case object BOTTOM_RIGHT extends BoardPosition {
-  override val adjacents: List[BoardPosition] = List(BOTTOM_MIDDLE, TOP_RIGHT)
 }
 

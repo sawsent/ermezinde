@@ -7,8 +7,7 @@ import saw.ermezinde.game.behaviour.fallback.WrongStateFallback
 import saw.ermezinde.game.domain.game.state.GameActorState.PlayerId
 import saw.ermezinde.game.domain.game.state.NotStartedGameState.NotStartedPlayerModel
 import saw.ermezinde.game.domain.game.state.{GameActorState, InPreparationGameState, NotStartedGameState}
-import saw.ermezinde.game.domain.player.PlayerModel.Color
-import saw.ermezinde.game.domain.player.PlayerModel.Color.UNSET
+import saw.ermezinde.game.domain.player.Color
 import saw.ermezinde.game.syntax.Validate
 import saw.ermezinde.game.validation.PlayerIdValidation.PlayerIdValidation
 import saw.ermezinde.util.logging.BehaviourLogging
@@ -56,7 +55,7 @@ trait NotStartedBehaviour extends BehaviourLogging {
         game.isNotFull
       ).map {
         val updatedState = game.copy(
-          waitingPlayers = game.waitingPlayers + (playerId -> NotStartedPlayerModel(UNSET, ready = false))
+          waitingPlayers = game.waitingPlayers + (playerId -> NotStartedPlayerModel(Color.UNSET, ready = false))
         )
         context.become(behaviour(updatedState))
         s"Player $playerId joined the game"
@@ -89,7 +88,7 @@ trait NotStartedBehaviour extends BehaviourLogging {
         game.playerIsNotReady(playerId)
       ).map {
         val updatedState = game.copy(
-          waitingPlayers = game.waitingPlayers + (playerId -> game.waitingPlayers(playerId).copy(color = UNSET))
+          waitingPlayers = game.waitingPlayers + (playerId -> game.waitingPlayers(playerId).copy(color = Color.UNSET))
         )
         context.become(behaviour(updatedState))
         s"Player $playerId has unselected their color."
@@ -136,7 +135,7 @@ trait NotStartedBehaviour extends BehaviourLogging {
 
   implicit class NotStartedStateValidation(state: NotStartedGameState) {
     def playerHasColorSelected(playerId: PlayerId): Either[GameFailureResponse, Unit] =
-      (state.waitingPlayers(playerId).color != UNSET) -> s"Player $playerId does not have a selected color"
+      (state.waitingPlayers(playerId).color != Color.UNSET) -> s"Player $playerId does not have a selected color"
 
     def playerIsNotReady(playerId: PlayerId): Either[GameFailureResponse, Unit] =
       state.waitingPlayers.get(playerId).exists(!_.ready) -> s"Player $playerId is not ready"

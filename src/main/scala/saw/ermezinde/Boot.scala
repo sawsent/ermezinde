@@ -14,13 +14,13 @@ import saw.ermezinde.game.behaviour.NoStateBehaviour.CreateGameCommand
 import saw.ermezinde.game.behaviour.NotStartedBehaviour.{PlayerJoinGame, PlayerReady, PlayerSelectColor, StartGame}
 import saw.ermezinde.game.behaviour.inplay.PreparationPhaseBehaviour.SelectBoard
 import saw.ermezinde.game.domain.GameConfig
-import saw.ermezinde.game.domain.board.{BOTTOM_RIGHT, BoardRotation}
+import saw.ermezinde.game.domain.board.{BoardPosition, BoardRotation}
 import saw.ermezinde.game.domain.card.MissionCard
 import saw.ermezinde.game.domain.game.model.DiscardPhaseGameModel
 import saw.ermezinde.game.domain.game.state.{BoardSelectionGameState, DiscardPhaseGameState, InCountingGameState}
 import saw.ermezinde.game.domain.player.PlayerModel
-import saw.ermezinde.game.domain.player.PlayerModel.Color
-import saw.ermezinde.game.domain.player.PlayerModel.Color.{BLUE, RED}
+import saw.ermezinde.game.domain.player.Color
+import saw.ermezinde.game.domain.player.Color.{BLUE, RED}
 
 import scala.concurrent.Await
 import scala.concurrent.duration.{Duration, DurationInt, MILLISECONDS}
@@ -83,7 +83,7 @@ object Boot extends App {
   printResponse(GetReadyForInPlay(ownerId))
   printResponse(GetReadyForInPlay("sebas"))
 
-  printResponse(SelectBoard(ownerId, 0, BOTTOM_RIGHT, BoardRotation.`0`))
+  printResponse(SelectBoard(ownerId, 0, BoardPosition.BOTTOM_RIGHT, BoardRotation.`0`))
 
   send("get")
 

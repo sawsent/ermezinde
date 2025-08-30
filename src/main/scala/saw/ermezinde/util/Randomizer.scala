@@ -1,7 +1,8 @@
 package saw.ermezinde.util
 
 import saw.ermezinde.game.domain.card.Deck
-import saw.ermezinde.game.domain.player.PlayerModel.{Color, PlayerModelId}
+import saw.ermezinde.game.domain.player.PlayerModel.PlayerModelId
+import saw.ermezinde.game.domain.player.Color
 
 import scala.util.Random
 

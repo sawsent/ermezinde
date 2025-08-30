@@ -8,7 +8,7 @@ import saw.ermezinde.game.domain.game.state.GameActorState.PlayerId
 import saw.ermezinde.game.domain.game.state.NotStartedGameState.NotStartedPlayerModel
 import saw.ermezinde.game.domain.game.model.NotStartedGameModel
 import saw.ermezinde.game.domain.game.state.{GameActorState, GameNoState, NotStartedGameState}
-import saw.ermezinde.game.domain.player.PlayerModel.Color
+import saw.ermezinde.game.domain.player.Color
 import saw.ermezinde.util.logging.BehaviourLogging
 
 object NoStateBehaviour {

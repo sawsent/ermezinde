@@ -15,7 +15,7 @@ import saw.ermezinde.game.domain.GameConfig
 import saw.ermezinde.game.domain.game.state.NotStartedGameState.NotStartedPlayerModel
 import saw.ermezinde.game.domain.game.model.NotStartedGameModel
 import saw.ermezinde.game.domain.game.state.{GameActorState, GameNoState, NotStartedGameState}
-import saw.ermezinde.game.domain.player.PlayerModel.Color.UNSET
+import saw.ermezinde.game.domain.player.Color.UNSET
 
 import scala.concurrent.Await
 

@@ -4,7 +4,8 @@ import saw.ermezinde.game.domain.game.model._
 import saw.ermezinde.game.domain.game.state.GameActorState.{DiceRoll, PlayerId, Timestamp}
 import saw.ermezinde.game.domain.game.state.InCountingGameState.RevealPhase.{ALL_REVEALED, REVEAL_DISCARDED, REVEAL_HAND, REVEAL_MEDALS, REVEAL_MISSIONS, RevealPhase}
 import saw.ermezinde.game.domain.game.state.NotStartedGameState.NotStartedPlayerModel
-import saw.ermezinde.game.domain.player.PlayerModel.{Color, PlayerModelId}
+import saw.ermezinde.game.domain.player.PlayerModel.PlayerModelId
+import saw.ermezinde.game.domain.player.Color
 import saw.ermezinde.game.domain.result.ResultTable
 
 object GameActorState {

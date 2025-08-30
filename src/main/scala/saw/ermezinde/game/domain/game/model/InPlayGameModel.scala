@@ -1,12 +1,13 @@
 package saw.ermezinde.game.domain.game.model
 
 import saw.ermezinde.game.domain.GameConfig
-import saw.ermezinde.game.domain.board.{Board, BoardPosition, BoardRotation, PlacePhaseTableModel, PreparationPhaseTableModel, ResolvePhaseTableModel}
+import saw.ermezinde.game.domain.board.{Board, BoardPosition, BoardRotation}
 import saw.ermezinde.game.domain.card.{Deck, MissionCard}
 import saw.ermezinde.game.domain.game.GamePhase
 import saw.ermezinde.game.domain.game.state.GameActorState.DiceRoll
 import saw.ermezinde.game.domain.player.PlayerModel
 import saw.ermezinde.game.domain.player.PlayerModel.PlayerModelId
+import saw.ermezinde.game.domain.table.{PlacePhaseTableModel, PreparationPhaseTableModel, ResolvePhaseTableModel}
 import saw.ermezinde.util.{Deterministic, Randomization}
 
 

@@ -1,4 +1,6 @@
-package saw.ermezinde.game.domain.board
+package saw.ermezinde.game.domain.table
+
+import saw.ermezinde.game.domain.board.{Board, BoardPosition, BoardRotation}
 
 object PreparationPhaseTableModel {
   def init: PreparationPhaseTableModel = {
