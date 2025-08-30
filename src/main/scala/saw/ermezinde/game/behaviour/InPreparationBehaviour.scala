@@ -9,6 +9,9 @@ import saw.ermezinde.game.domain.game.state.{GameActorState, InPlayGameState, In
 import saw.ermezinde.game.syntax.Validate
 import saw.ermezinde.game.validation.PlayerIdValidation.PlayerIdValidation
 import saw.ermezinde.util.logging.BehaviourLogging
+import saw.ermezinde.game.syntax.EitherSyntax.toEither
+
+import scala.util.Try
 
 
 object InPreparationBehaviour {
@@ -76,23 +79,19 @@ trait InPreparationBehaviour extends BehaviourLogging {
 
   implicit class InPreparationStateValidation(state: InPreparationGameState) {
     def isCardIndexAllowed(cardIndex: Int): Either[GameFailureResponse, Unit] =
-      Either.cond(
-        state.game.possibleMissionCards.length > cardIndex && cardIndex >= 0,
-        (),
-        "Card not available"
-      )
+      Try(state.game.possibleMissionCards(cardIndex)).isSuccess -> "Card not available"
 
     def notAllMissionCardsSelected: Either[GameFailureResponse, Unit] =
-      Either.cond(state.game.missionCards.length < 4, (), "4 mission cards are already selected")
+      (state.game.missionCards.length < 4) -> "4 mission cards are already selected"
 
     def allMissionCardsSelected: Either[GameFailureResponse, Unit] =
-      Either.cond(state.game.missionCards.length == 4, (), "Not all mission cards are selected")
+      (state.game.missionCards.length == 4) -> "Not all mission cards are selected"
 
     def isPlayerMove(playerId: PlayerId): Either[GameFailureResponse, Unit] =
-      Either.cond(state.currentPlayer == playerId, (), s"It's not $playerId's move")
+      (state.currentPlayer == playerId) -> s"It's not $playerId's move"
 
     def playerNotReady(playerId: PlayerId): Either[GameFailureResponse, Unit] =
-      Either.cond(!state.playersReady.contains(playerId), (), s"Player $playerId's move is already ready")
+      !state.playersReady.contains(playerId) -> s"Player $playerId's move is already ready"
 
     def allPlayersReady: Boolean = state.playersReady == state.players.keys.toSet
   }

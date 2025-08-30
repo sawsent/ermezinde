@@ -10,9 +10,9 @@ import saw.ermezinde.game.domain.game.state.{GameActorState, InPreparationGameSt
 import saw.ermezinde.game.domain.player.PlayerModel.Color
 import saw.ermezinde.game.domain.player.PlayerModel.Color.UNSET
 import saw.ermezinde.game.syntax.Validate
-import saw.ermezinde.game.validation.GameStateValidation.StateValidation
 import saw.ermezinde.game.validation.PlayerIdValidation.PlayerIdValidation
 import saw.ermezinde.util.logging.BehaviourLogging
+import saw.ermezinde.game.syntax.EitherSyntax.toEither
 
 object NotStartedBehaviour {
   sealed trait NotStartedGameCommand extends GameActorCommand {
@@ -136,18 +136,21 @@ trait NotStartedBehaviour extends BehaviourLogging {
 
   implicit class NotStartedStateValidation(state: NotStartedGameState) {
     def playerHasColorSelected(playerId: PlayerId): Either[GameFailureResponse, Unit] =
-      Either.cond(state.waitingPlayers(playerId).color != UNSET, (), s"Player $playerId does not have a selected color")
+      (state.waitingPlayers(playerId).color != UNSET) -> s"Player $playerId does not have a selected color"
 
     def playerIsNotReady(playerId: PlayerId): Either[GameFailureResponse, Unit] =
-      Either.cond(state.waitingPlayers.get(playerId).exists(!_.ready), (), s"Player $playerId is not ready")
+      state.waitingPlayers.get(playerId).exists(!_.ready) -> s"Player $playerId is not ready"
 
     def playerIsReady(playerId: PlayerId): Either[GameFailureResponse, Unit] =
-      Either.cond(state.waitingPlayers.get(playerId).exists(_.ready), (), s"Player $playerId is ready")
+      state.waitingPlayers.get(playerId).exists(_.ready) -> s"Player $playerId is ready"
 
     def allPlayersReady: Either[GameFailureResponse, Unit] =
-      Either.cond(state.waitingPlayers.values.toList.forall(_.ready), (), "Not all players are ready")
+      state.waitingPlayers.values.toList.forall(_.ready) -> "Not all players are ready"
 
     def isNotFull: Either[GameFailureResponse, Unit] =
-      Either.cond(state.players.toList.length <= 4, (), "Game is full")
+      (state.players.toList.length <= 4) -> "Game is full"
+
+    def colorIsNotSelected(color: Color): Either[GameFailureResponse, Unit] =
+      !state.players.values.toList.contains(color) -> s"Color ${color.toString} is already selected"
   }
 }

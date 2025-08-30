@@ -4,7 +4,7 @@ import saw.ermezinde.game.GameActor
 import saw.ermezinde.game.GameActor.{GameActorCommand, GameActorResponse, GameFailureResponse}
 import saw.ermezinde.game.behaviour.InCountingBehaviour.{InCountingGameCommand, PlayerReadyToFinish, PlayerRevealDiscarded, PlayerRevealHand, PlayerRevealMedals, PlayerRevealMissionPoints, RevealCommand}
 import saw.ermezinde.game.behaviour.fallback.WrongStateFallback
-import saw.ermezinde.game.domain.card.MissionCard
+import saw.ermezinde.game.syntax.EitherSyntax.toEither
 import saw.ermezinde.game.domain.game.state.{FinishedGameState, GameActorState, InCountingGameState}
 import saw.ermezinde.game.domain.game.state.GameActorState.PlayerId
 import saw.ermezinde.game.domain.game.state.InCountingGameState.RevealPhase.{ALL_REVEALED, REVEAL_DISCARDED, REVEAL_HAND, REVEAL_MEDALS, REVEAL_MISSIONS, RevealPhase}
@@ -101,10 +101,10 @@ trait InCountingBehaviour extends BehaviourLogging {
 
   implicit class InCountingStateValidations(state: InCountingGameState) {
     def isCorrectRevealPhase(revealPhase: RevealPhase): Either[GameFailureResponse, Unit] =
-      Either.cond(state.revealPhase == revealPhase, (), s"Game is in revealPhase ${state.revealPhase}, not $revealPhase")
+      (state.revealPhase == revealPhase) -> s"Game is in revealPhase ${state.revealPhase}, not $revealPhase"
 
     def playerNotReadyToFinish(playerId: PlayerId): Either[GameFailureResponse, Unit] =
-      Either.cond(!state.playersReadyToFinish.contains(playerId), (), s"Player $playerId is already ready to finish.")
+      !state.playersReadyToFinish.contains(playerId) -> s"Player $playerId is already ready to finish."
 
     def allPlayersReadyToFinish: Boolean = state.playersReadyToFinish == state.players.keys.toSet
   }

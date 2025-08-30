@@ -6,9 +6,12 @@ import saw.ermezinde.game.behaviour.fallback.WrongStateFallback
 import saw.ermezinde.game.behaviour.inplay.PreparationPhaseBehaviour.{PlaceEnigma, PreparationPhaseCommand, PreparationPhaseDiceRoll, SelectBoard}
 import saw.ermezinde.game.domain.board.{BoardPosition, BoardRotation}
 import saw.ermezinde.game.domain.game.state.GameActorState.PlayerId
-import saw.ermezinde.game.domain.game.state.{BoardSelectionGameState, EnigmaPlacementGameState, PreparationPhaseGameState, OrderingSelectionGameState}
+import saw.ermezinde.game.domain.game.state.{BoardSelectionGameState, EnigmaPlacementGameState, OrderingSelectionGameState, PreparationPhaseGameState}
 import saw.ermezinde.game.syntax.Validate
 import saw.ermezinde.util.logging.BehaviourLogging
+import saw.ermezinde.game.syntax.EitherSyntax.toEither
+
+import scala.util.Try
 
 object PreparationPhaseBehaviour {
   sealed trait PreparationPhaseCommand extends InPlayGameCommand
@@ -30,9 +33,10 @@ trait PreparationPhaseBehaviour extends BehaviourLogging {
     }
   }
 
-  private def processSelectBoard(state: BoardSelectionGameState, board: SelectBoard): GameActorResponse = {
+  private def processSelectBoard(state: BoardSelectionGameState, cmd: SelectBoard): GameActorResponse = {
     Validate(
-      Either.cond(false, "", "Not Implemented")
+      Try(state.game.availableBoards(cmd.boardIndex)).isSuccess -> "There is no board for that index",
+      state.game.table.boardAt(cmd.boardPosition).isEmpty       -> "There is already a board at that location"
     ).map {
       "Not Implemented but passed validation"
     }
