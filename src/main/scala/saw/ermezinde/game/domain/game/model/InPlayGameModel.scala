@@ -1,19 +1,21 @@
 package saw.ermezinde.game.domain.game.model
 
 import saw.ermezinde.game.domain.GameConfig
-import saw.ermezinde.game.domain.board.{Board, PlacePhaseTableModel, PreparationPhaseTableModel, ResolvePhaseTableModel}
+import saw.ermezinde.game.domain.board.{Board, BoardPosition, BoardRotation, PlacePhaseTableModel, PreparationPhaseTableModel, ResolvePhaseTableModel}
 import saw.ermezinde.game.domain.card.{Deck, MissionCard}
 import saw.ermezinde.game.domain.game.GamePhase
-import saw.ermezinde.game.domain.game.model.PreparationPhaseGameModel.PreparationAction
+import saw.ermezinde.game.domain.game.state.GameActorState.DiceRoll
 import saw.ermezinde.game.domain.player.PlayerModel
 import saw.ermezinde.game.domain.player.PlayerModel.PlayerModelId
-import saw.ermezinde.util.Randomizer
+import saw.ermezinde.util.{Deterministic, Randomization}
 
 
-object InPlayGameModel {
+object InPlayGameModel extends Deterministic {
+  this: Randomization =>
+
   def init(model: InPreparationGameModel): PreparationPhaseGameModel = {
-    val playerOrdering = Randomizer.randomizePlayers(model.players.keys.toList)
-    val deck: Deck = Randomizer.shuffleDeck(Deck(model.config.cards))
+    val playerOrdering = randomizePlayers(model.players.keys.toList)
+    val deck: Deck = shuffleDeck(Deck(model.config.cards))
     PreparationPhaseGameModel(
       config = model.config,
       round = 1,
@@ -24,23 +26,17 @@ object InPlayGameModel {
       availableBoards = model.config.boards,
       deck = deck,
       diceRolls = Map.empty,
-      table = PreparationPhaseTableModel.init,
-      currentAction = PreparationPhaseGameModel.SELECT_BOARD
+      table = PreparationPhaseTableModel.init
     )
   }
 }
 sealed trait InPlayGameModel extends GameModel {
   override val players: Map[PlayerModelId, PlayerModel]
-
   val phase: GamePhase
   val round: Int
   val missionCards: List[MissionCard]
 }
-object PreparationPhaseGameModel {
-  sealed trait PreparationAction
-  case object SELECT_BOARD extends PreparationAction
-  case object ROLL_DICE extends PreparationAction
-}
+
 case class PreparationPhaseGameModel(
                                       config: GameConfig,
                                       round: Int,
@@ -50,25 +46,39 @@ case class PreparationPhaseGameModel(
                                       availableBoards: List[Board],
                                       missionCards: List[MissionCard],
                                       deck: Deck,
-                                      diceRolls: Map[PlayerModelId, Int],
+                                      diceRolls: Map[PlayerModelId, DiceRoll],
                                       table: PreparationPhaseTableModel,
-                                      currentAction: PreparationAction
-                                    ) extends InPlayGameModel {
+                                    ) extends InPlayGameModel with Deterministic {
   override val phase: GamePhase = GamePhase.PREPARATION
 
-  val currentPlayer: Option[PlayerModelId] = currentAction match {
-    case PreparationPhaseGameModel.SELECT_BOARD => Some(playerOrdering(currentPlayerIndex))
-    case PreparationPhaseGameModel.ROLL_DICE => None
+  val currentPlayer: PlayerModelId = playerOrdering(currentPlayerIndex)
+
+  def chooseBoard(boardIndex: Int, boardPosition: BoardPosition, boardRotation: BoardRotation): PreparationPhaseGameModel = {
+    val board = availableBoards(boardIndex)
+    copy(
+      currentPlayerIndex = (currentPlayerIndex + 1) % players.toList.length,
+      table = table.placeBoard(board, boardPosition, boardRotation),
+      availableBoards = availableBoards.filterNot(_ == board)
+    )
   }
 }
 
+object PlacePhaseGameModel {
+  def init(model: PreparationPhaseGameModel, playerOrdering: List[PlayerModelId]): PlacePhaseGameModel = PlacePhaseGameModel(
+    config = model.config,
+    round = model.round,
+    players = model.players,
+    missionCards = model.missionCards,
+    table = PlacePhaseTableModel.init(model.table),
+    playerOrdering = playerOrdering
+  )
+}
 case class PlacePhaseGameModel(
                                 config: GameConfig,
                                 round: Int,
                                 players: Map[PlayerModelId, PlayerModel],
                                 missionCards: List[MissionCard],
-                                turn: Int,
-                                currentPlayer: PlayerModel,
+                                playerOrdering: List[PlayerModelId],
                                 table: PlacePhaseTableModel
                               ) extends InPlayGameModel {
   override val phase: GamePhase = GamePhase.PLACE

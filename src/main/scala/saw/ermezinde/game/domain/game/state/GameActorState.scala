@@ -1,7 +1,7 @@
 package saw.ermezinde.game.domain.game.state
 
 import saw.ermezinde.game.domain.game.model._
-import saw.ermezinde.game.domain.game.state.GameActorState.{PlayerId, Timestamp}
+import saw.ermezinde.game.domain.game.state.GameActorState.{DiceRoll, PlayerId, Timestamp}
 import saw.ermezinde.game.domain.game.state.InCountingGameState.RevealPhase.{ALL_REVEALED, REVEAL_DISCARDED, REVEAL_HAND, REVEAL_MEDALS, REVEAL_MISSIONS, RevealPhase}
 import saw.ermezinde.game.domain.game.state.NotStartedGameState.NotStartedPlayerModel
 import saw.ermezinde.game.domain.player.PlayerModel.{Color, PlayerModelId}
@@ -10,6 +10,7 @@ import saw.ermezinde.game.domain.result.ResultTable
 object GameActorState {
   type PlayerId = String
   type Timestamp = Long
+  type DiceRoll = (Int, Int)
 }
 trait GameActorState {
   val id: String
@@ -64,7 +65,7 @@ case class InPreparationGameState(
 }
 
 object InPlayGameState {
-  def init(state: InPreparationGameState): InPlayGameState = PreparationPhaseGameState(
+  def init(state: InPreparationGameState): InPlayGameState = BoardSelectionGameState(
     id = state.id,
     ownerId = state.ownerId,
     gameStartTime = state.gameStartTime,
@@ -75,14 +76,49 @@ object InPlayGameState {
 sealed trait InPlayGameState extends GameState {
   override val game: InPlayGameModel
 }
-case class PreparationPhaseGameState(
+
+sealed trait PreparationPhaseGameState extends InPlayGameState
+case class BoardSelectionGameState(
                                       id: String,
                                       ownerId: String,
                                       gameStartTime: Option[Timestamp],
                                       players: Map[PlayerId, PlayerModelId],
                                       game: PreparationPhaseGameModel
-                                    ) extends InPlayGameState
+                                    ) extends PreparationPhaseGameState {
+}
 
+case class OrderingSelectionGameState(
+                                    underlying: BoardSelectionGameState
+                                  ) extends PreparationPhaseGameState {
+  override val game: InPlayGameModel = underlying.game
+  override val id: RevealPhase = underlying.id
+  override val ownerId: RevealPhase = underlying.ownerId
+  override val gameStartTime: Option[Timestamp] = underlying.gameStartTime
+  override val players: Map[PlayerId, PlayerModelId] = underlying.players
+}
+
+case class EnigmaPlacementGameState(
+                                 underlying: BoardSelectionGameState,
+                                 playerOrdering: List[PlayerId]
+                               ) extends PreparationPhaseGameState {
+  override val game: InPlayGameModel = underlying.game
+  override val id: RevealPhase = underlying.id
+  override val ownerId: RevealPhase = underlying.ownerId
+  override val gameStartTime: Option[Timestamp] = underlying.gameStartTime
+  override val players: Map[PlayerId, PlayerModelId] = underlying.players
+}
+
+
+object PlacePhaseGameState {
+  def init(state: BoardSelectionGameState, playerOrdering: List[PlayerId]): PlacePhaseGameState =
+    PlacePhaseGameState(
+      state.id,
+      state.ownerId,
+      state.gameStartTime,
+      state.players,
+      PlacePhaseGameModel.init(state.game, playerOrdering.map(p => state.players(p)))
+    )
+}
 case class PlacePhaseGameState(
                                 id: String,
                                 ownerId: String,
@@ -230,5 +266,3 @@ case class FinishedGameState(
                             ) extends GameState {
   val gameDurationMillis: Option[Long] = gameStartTime.flatMap(start => gameEndTime.map(end => end - start))
 }
-
-

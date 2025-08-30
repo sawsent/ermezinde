@@ -11,6 +11,11 @@ object BoardRotation {
     case _180.degrees => _180
     case _270.degrees => _270
   }
+
+  val `0`: BoardRotation = _0
+  val `90`: BoardRotation = _90
+  val `180`: BoardRotation = _180
+  val `270`: BoardRotation = _270
 }
 
 case object _0 extends BoardRotation {

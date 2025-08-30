@@ -28,9 +28,12 @@ trait InPlayBehaviour extends PreparationPhaseBehaviour with PlacePhaseBehaviour
 
   def inPlayBehaviour(state: GameActorState): Receive = {
     case cmd: InPlayGameCommand => state match {
-      case s: InPlayGameState => Validate(
-        cmd.playerId.inGame(s),
-      ).flatMap(processInPlay(s, cmd))
+      case s: InPlayGameState =>
+        val response = Validate(
+          cmd.playerId.inGame(s),
+        ).flatMap(processInPlay(s, cmd))
+
+        sender() ! response
 
       case s: GameActorState => fallbackWrongState(s, cmd)
     }

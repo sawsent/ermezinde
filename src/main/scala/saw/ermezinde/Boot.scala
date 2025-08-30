@@ -12,10 +12,12 @@ import saw.ermezinde.game.behaviour.InCountingBehaviour._
 import saw.ermezinde.game.behaviour.InPreparationBehaviour.{GetReadyForInPlay, SelectMissionCard}
 import saw.ermezinde.game.behaviour.NoStateBehaviour.CreateGameCommand
 import saw.ermezinde.game.behaviour.NotStartedBehaviour.{PlayerJoinGame, PlayerReady, PlayerSelectColor, StartGame}
+import saw.ermezinde.game.behaviour.inplay.PreparationPhaseBehaviour.SelectBoard
 import saw.ermezinde.game.domain.GameConfig
+import saw.ermezinde.game.domain.board.{BOTTOM_RIGHT, BoardRotation}
 import saw.ermezinde.game.domain.card.MissionCard
 import saw.ermezinde.game.domain.game.model.DiscardPhaseGameModel
-import saw.ermezinde.game.domain.game.state.{DiscardPhaseGameState, InCountingGameState}
+import saw.ermezinde.game.domain.game.state.{BoardSelectionGameState, DiscardPhaseGameState, InCountingGameState}
 import saw.ermezinde.game.domain.player.PlayerModel
 import saw.ermezinde.game.domain.player.PlayerModel.Color
 import saw.ermezinde.game.domain.player.PlayerModel.Color.{BLUE, RED}
@@ -42,8 +44,8 @@ object Boot extends App {
   )
 
   private val testGameActor = system.actorOf(GameActor.props(defaultGameConfig))
-  implicit val timeout: Timeout = Timeout(100.millis)
-  val duration = Duration(100, MILLISECONDS)
+  implicit val timeout: Timeout = Timeout(200.millis)
+  val duration = Duration(200, MILLISECONDS)
 
   def printResponse(cmd: GameActorCommand): Unit = {
     Try(Await.result(testGameActor ? cmd, duration).asInstanceOf[GameActorResponse]) match {
@@ -81,8 +83,11 @@ object Boot extends App {
   printResponse(GetReadyForInPlay(ownerId))
   printResponse(GetReadyForInPlay("sebas"))
 
+  printResponse(SelectBoard(ownerId, 0, BOTTOM_RIGHT, BoardRotation.`0`))
+
   send("get")
 
+  Thread.sleep(1000)
   println()
   println("-------------------------------------")
   println()
@@ -100,6 +105,8 @@ object Boot extends App {
       missionCards = MissionCard.defaultDeck
     )
   )
+
+  send(inPlay)
 
   printResponse(GetResults)
 

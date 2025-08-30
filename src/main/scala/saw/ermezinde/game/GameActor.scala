@@ -25,6 +25,11 @@ object GameActor {
 class GameActor(val defaultConfig: GameConfig) extends Actor with Logging {
   this: NoStateBehaviour with NotStartedBehaviour with FinishedBehaviour with InPreparationBehaviour with InPlayBehaviour with InCountingBehaviour =>
 
+  private def receivedLogMessage(state: GameActorState): PartialFunction[Any, Any] = cmd => {
+    logger.debug(s"(${state.id}) Received command: $cmd.")
+    cmd
+  }
+
   override def receive: Receive = behaviour(GameNoState)
 
   protected def gameBehaviour(state: GameActorState): Receive = {
@@ -36,7 +41,7 @@ class GameActor(val defaultConfig: GameConfig) extends Actor with Logging {
       .orElse(finishedBehaviour(state))
   }
 
-  def behaviour(state: GameActorState): Receive = gameBehaviour(state).orElse(common(state))
+  def behaviour(state: GameActorState): Receive = receivedLogMessage(state).andThen(gameBehaviour(state).orElse(common(state)))
 
   def common(state: GameActorState): Receive = {
     case state: GameActorState => context.become(behaviour(state))

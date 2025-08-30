@@ -5,14 +5,28 @@ import saw.ermezinde.game.domain.player.PlayerModel.{Color, PlayerModelId}
 
 import scala.util.Random
 
-object Randomizer {
-  def randomizePlayers(players: List[PlayerModelId]): List[PlayerModelId] = {
-    // Random.shuffle(players)
-    List(Color.BLUE, Color.RED)
+trait Randomization {
+  def randomizePlayers(players: List[PlayerModelId]): List[PlayerModelId]
+  def shuffleDeck(deck: Deck): Deck
+
+  def rollDice(): (Int, Int)
+}
+
+trait Randomizer extends Randomization {
+  override def randomizePlayers(players: List[PlayerModelId]): List[PlayerModelId] = {
+    Random.shuffle(players)
   }
 
-  def shuffleDeck(deck: Deck): Deck = Deck(
+  override def shuffleDeck(deck: Deck): Deck = Deck(
     Random.shuffle(deck.cards)
   )
 
+  override def rollDice(): (Int, Int) = (Random.between(1, 7), Random.between(1, 7))
+}
+
+trait Deterministic extends Randomization {
+  override def shuffleDeck(deck: Deck): Deck = Deck(Random.shuffle(deck.cards))
+  override def randomizePlayers(players: List[PlayerModelId]): List[PlayerModelId] = List(Color.BLUE, Color.RED)
+
+  override def rollDice(): (Int, Int) = (1, 1)
 }
