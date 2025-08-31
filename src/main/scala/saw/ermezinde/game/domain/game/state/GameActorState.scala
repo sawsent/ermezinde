@@ -8,6 +8,8 @@ import saw.ermezinde.game.domain.game.state.NotStartedGameState.NotStartedPlayer
 import saw.ermezinde.game.domain.player.PlayerModel.PlayerModelId
 import saw.ermezinde.game.domain.player.Color
 import saw.ermezinde.game.domain.result.ResultTable
+import saw.ermezinde.util.Randomizer
+import saw.ermezinde.game.syntax.DiceRollSyntax.DiceRollSyntax
 
 object GameActorState {
   type PlayerId = String
@@ -93,20 +95,64 @@ case class BoardSelectionGameState(
 }
 
 object OrderingSelectionGameState {
-  def init(state: BoardSelectionGameState): OrderingSelectionGameState = OrderingSelectionGameState(
-    underlying = state,
-    diceRolls = Map.empty
-  )
+  def init(state: BoardSelectionGameState): OrderingSelectionGameState = {
+    val players = state.players.keys.toList
+    OrderingSelectionGameState(
+      currentPlayerIndex = 0,
+      underlying = state,
+      playersContesting = players,
+      contestingForSpots = players.indices.toList.sorted,
+      diceRolls = Map.empty,
+      results = Map.empty
+    )
+  }
 }
 case class OrderingSelectionGameState(
                                     underlying: BoardSelectionGameState,
-                                    diceRolls: Map[PlayerId, DiceRoll]
+                                    currentPlayerIndex: Int,
+                                    playersContesting: List[PlayerId],
+                                    contestingForSpots: List[Int],
+                                    diceRolls: Map[PlayerId, DiceRoll],
+                                    results: Map[Int, PlayerId]
                                   ) extends PreparationPhaseGameState {
   override val game: InPlayGameModel = underlying.game
   override val id: RevealPhase = underlying.id
   override val ownerId: RevealPhase = underlying.ownerId
   override val gameStartTime: Option[Timestamp] = underlying.gameStartTime
   override val players: Map[PlayerId, PlayerModelId] = underlying.players
+
+  private val allContestingPlayersRolled: Boolean = playersContesting.isEmpty
+
+  def playerRollDice(playerId: PlayerId): PreparationPhaseGameState = {
+    val roll = Randomizer.rollDice()
+    val updatedDiceRolls = diceRolls + (playerId -> roll)
+    val updatedContestants = playersContesting.filterNot(_ == playerId)
+
+    val s = copy(
+      diceRolls = updatedDiceRolls,
+      playersContesting = updatedContestants
+    )
+
+    if (s.allContestingPlayersRolled) {
+      s.checkTies
+    } else s
+  }
+
+  private def checkTies: PreparationPhaseGameState = {
+    val orderedResults = diceRolls.toList.map { case (id, diceRoll) => diceRoll.value -> id }
+
+    val byResultMap = orderedResults.foldLeft(Map.empty[Int, List[PlayerId]]){ case (acc, (value, id)) =>
+      val newPlayers = List(id) ++ acc.getOrElse(value, List.empty)
+      acc + (value -> newPlayers)
+    }
+
+    val ordered = byResultMap.keys.toList.sorted.reverse.map(v => v -> byResultMap(v))
+
+    this
+  }
+
+
+
 }
 
 case class EnigmaPlacementGameState(

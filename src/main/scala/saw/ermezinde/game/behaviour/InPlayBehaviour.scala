@@ -11,9 +11,9 @@ import saw.ermezinde.game.behaviour.inplay.ResolvePhaseBehaviour.ResolvePhaseCom
 import saw.ermezinde.game.behaviour.inplay.{DiscardPhaseBehaviour, PlacePhaseBehaviour, PreparationPhaseBehaviour, ResolvePhaseBehaviour}
 import saw.ermezinde.game.domain.game.state.GameActorState.PlayerId
 import saw.ermezinde.game.domain.game.state._
-import saw.ermezinde.game.syntax.Validate
 import saw.ermezinde.game.validation.PlayerIdValidation.PlayerIdValidation
 import saw.ermezinde.util.logging.BehaviourLogging
+import saw.ermezinde.util.validation.Validate
 
 object InPlayBehaviour {
   trait InPlayGameCommand extends GameActorCommand {

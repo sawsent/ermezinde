@@ -8,9 +8,9 @@ import saw.ermezinde.game.behaviour.inplay.PreparationPhaseBehaviour.{PlaceEnigm
 import saw.ermezinde.game.domain.board.{BoardPosition, BoardRotation}
 import saw.ermezinde.game.domain.game.state.GameActorState.PlayerId
 import saw.ermezinde.game.domain.game.state.{BoardSelectionGameState, EnigmaPlacementGameState, OrderingSelectionGameState, PreparationPhaseGameState}
-import saw.ermezinde.game.syntax.Validate
 import saw.ermezinde.util.logging.BehaviourLogging
-import saw.ermezinde.game.syntax.EitherSyntax.toEither
+import saw.ermezinde.util.validation.EitherSyntax.toEither
+import saw.ermezinde.util.validation.Validate
 
 import scala.util.Try
 

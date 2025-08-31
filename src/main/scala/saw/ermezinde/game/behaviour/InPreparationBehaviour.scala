@@ -6,10 +6,10 @@ import saw.ermezinde.game.behaviour.InPreparationBehaviour.{GetReadyForInPlay, I
 import saw.ermezinde.game.behaviour.fallback.WrongStateFallback
 import saw.ermezinde.game.domain.game.state.GameActorState.PlayerId
 import saw.ermezinde.game.domain.game.state.{GameActorState, InPlayGameState, InPreparationGameState}
-import saw.ermezinde.game.syntax.Validate
 import saw.ermezinde.game.validation.PlayerIdValidation.PlayerIdValidation
 import saw.ermezinde.util.logging.BehaviourLogging
-import saw.ermezinde.game.syntax.EitherSyntax.toEither
+import saw.ermezinde.util.validation.EitherSyntax.toEither
+import saw.ermezinde.util.validation.Validate
 
 import scala.util.Try
 

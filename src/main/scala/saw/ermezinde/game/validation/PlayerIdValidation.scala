@@ -3,7 +3,7 @@ package saw.ermezinde.game.validation
 import saw.ermezinde.game.GameActor.GameFailureResponse
 import saw.ermezinde.game.domain.game.state.GameActorState.PlayerId
 import saw.ermezinde.game.domain.game.state.GameState
-import saw.ermezinde.game.syntax.EitherSyntax.toEither
+import saw.ermezinde.util.validation.EitherSyntax.toEither
 
 object PlayerIdValidation {
   implicit class PlayerIdValidation(playerId: PlayerId) {

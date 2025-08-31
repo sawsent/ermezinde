@@ -4,13 +4,13 @@ import saw.ermezinde.game.GameActor
 import saw.ermezinde.game.GameActor.{GameActorCommand, GameActorResponse, GameFailureResponse}
 import saw.ermezinde.game.behaviour.InCountingBehaviour.{InCountingGameCommand, PlayerReadyToFinish, PlayerRevealDiscarded, PlayerRevealHand, PlayerRevealMedals, PlayerRevealMissionPoints, RevealCommand}
 import saw.ermezinde.game.behaviour.fallback.WrongStateFallback
-import saw.ermezinde.game.syntax.EitherSyntax.toEither
+import saw.ermezinde.util.validation.EitherSyntax.toEither
 import saw.ermezinde.game.domain.game.state.{FinishedGameState, GameActorState, InCountingGameState}
 import saw.ermezinde.game.domain.game.state.GameActorState.PlayerId
 import saw.ermezinde.game.domain.game.state.InCountingGameState.RevealPhase.{ALL_REVEALED, REVEAL_DISCARDED, REVEAL_HAND, REVEAL_MEDALS, REVEAL_MISSIONS, RevealPhase}
-import saw.ermezinde.game.syntax.Validate
 import saw.ermezinde.util.logging.BehaviourLogging
 import saw.ermezinde.game.validation.PlayerIdValidation.PlayerIdValidation
+import saw.ermezinde.util.validation.Validate
 
 object InCountingBehaviour {
   sealed trait InCountingGameCommand extends GameActorCommand {

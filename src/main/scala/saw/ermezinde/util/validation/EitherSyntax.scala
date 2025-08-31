@@ -1,4 +1,4 @@
-package saw.ermezinde.game.syntax
+package saw.ermezinde.util.validation
 
 import scala.language.implicitConversions
 

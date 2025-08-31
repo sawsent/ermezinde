@@ -1,4 +1,4 @@
-package saw.ermezinde.game.syntax
+package saw.ermezinde.util.validation
 
 sealed trait Validatable[L, R] {
   def map[O](fn: R => O): Either[L, O]
