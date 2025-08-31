@@ -4,14 +4,13 @@ import saw.ermezinde.game.domain.GameConfig
 import saw.ermezinde.game.domain.card.MissionCard
 import saw.ermezinde.game.domain.player.PlayerModel
 import saw.ermezinde.game.domain.player.PlayerModel.PlayerModelId
-import saw.ermezinde.util.{Deterministic, Randomization}
+import saw.ermezinde.util.Randomizer
 
 import scala.util.Random
 
-object InPreparationGameModel extends Deterministic{
-  this: Randomization =>
+object InPreparationGameModel {
   def init(model: NotStartedGameModel, players: List[PlayerModelId]): InPreparationGameModel = {
-    val playerOrdering = randomizePlayers(players)
+    val playerOrdering = Randomizer.randomizePlayers(players)
 
     InPreparationGameModel(
       model.config,

@@ -8,5 +8,3 @@ object SlotPosition {
   case object BOTTOM_RIGHT extends SlotPosition
   case object MIDDLE extends SlotPosition
 }
-
-trait BoardPower

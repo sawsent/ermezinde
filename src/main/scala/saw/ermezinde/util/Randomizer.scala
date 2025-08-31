@@ -6,6 +6,10 @@ import saw.ermezinde.game.domain.player.Color
 
 import scala.util.Random
 
+object Randomizer extends Deterministic {
+  this: Randomization =>
+}
+
 trait Randomization {
   def randomizePlayers(players: List[PlayerModelId]): List[PlayerModelId]
   def shuffleDeck(deck: Deck): Deck
@@ -13,7 +17,7 @@ trait Randomization {
   def rollDice(): (Int, Int)
 }
 
-trait Randomizer extends Randomization {
+trait TrueRandom extends Randomization {
   override def randomizePlayers(players: List[PlayerModelId]): List[PlayerModelId] = {
     Random.shuffle(players)
   }

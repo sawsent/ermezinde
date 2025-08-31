@@ -15,5 +15,6 @@ case class GameConfig(
                      cards: List[Card],
                      boards: List[Board]
                      ) {
-  override def toString: String = s"GameConfig: [missionCards: $nrOfMissionCards, cards: ${cards.map(_.id)}, boards: ${boards.map(_.id)}]"
+  override def toString: String =
+    s"GameConfig: [missionCards: $nrOfMissionCards, cards: ${cards.length}, boards: ${boards.length}]"
 }

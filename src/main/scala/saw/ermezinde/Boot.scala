@@ -4,7 +4,7 @@ import com.typesafe.config.ConfigFactory
 import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.pattern.ask
 import org.apache.pekko.util.Timeout
-import saw.ermezinde.adapter.config.Config2Card
+import saw.ermezinde.adapter.config.{Config2Board, Config2Card}
 import saw.ermezinde.game.GameActor
 import saw.ermezinde.game.GameActor.{GameActorCommand, GameActorResponse}
 import saw.ermezinde.game.behaviour.FinishedBehaviour.GetResults
@@ -21,26 +21,43 @@ import saw.ermezinde.game.domain.game.state.{BoardSelectionGameState, DiscardPha
 import saw.ermezinde.game.domain.player.PlayerModel
 import saw.ermezinde.game.domain.player.Color
 import saw.ermezinde.game.domain.player.Color.{BLUE, RED}
+import saw.ermezinde.util.logging.Logging
 
 import scala.concurrent.Await
 import scala.concurrent.duration.{Duration, DurationInt, MILLISECONDS}
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.util.{Failure, Success, Try}
 
-object Boot extends App {
+object Boot extends App with Logging {
   println("####### Starting Ermezinde Server #######")
 
   private val config = ConfigFactory.load()
 
   implicit val system: ActorSystem = ActorSystem("ermezinde")
 
-  val deck = config.getConfigList("deck").asScala.toList.map(Config2Card.fromConfig).filter(_.isSuccess).map(_.toOption.get)
+  val deck = config.getConfigList("deck").asScala.toList.map(cardConfig => cardConfig.getString("id") -> Config2Card.fromConfig(cardConfig)).map { case (id, cardTry) =>
+    cardTry match {
+      case Failure(exception) =>
+        logger.info(s"Failed to convert card: $id with exception $exception")
+        Failure(exception)
+      case Success(value) => Success(value)
+    }
+  }.filter(_.isSuccess).map(_.toOption.get)
+
+  val boardDeck = config.getConfigList("boards").asScala.toList.map(boardConfig => boardConfig.getString("id") -> Config2Board.fromConfig(boardConfig)).map { case (id, boardTry) =>
+    boardTry match {
+      case Failure(exception) =>
+        logger.info(s"Failed to convert board $id with exception $exception")
+        Failure(exception)
+      case Success(value) => Success(value)
+    }
+  }.filter(_.isSuccess).map(_.toOption.get)
 
 
   private val defaultGameConfig = GameConfig(
     nrOfMissionCards = 4,
     cards = deck,
-    boards = List.empty
+    boards = boardDeck
   )
 
   private val testGameActor = system.actorOf(GameActor.props(defaultGameConfig))

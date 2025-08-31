@@ -8,15 +8,14 @@ import saw.ermezinde.game.domain.game.state.GameActorState.DiceRoll
 import saw.ermezinde.game.domain.player.PlayerModel
 import saw.ermezinde.game.domain.player.PlayerModel.PlayerModelId
 import saw.ermezinde.game.domain.table.{PlacePhaseTableModel, PreparationPhaseTableModel, ResolvePhaseTableModel}
-import saw.ermezinde.util.{Deterministic, Randomization}
+import saw.ermezinde.util.Randomizer
 
 
-object InPlayGameModel extends Deterministic {
-  this: Randomization =>
+object InPlayGameModel {
 
   def init(model: InPreparationGameModel): PreparationPhaseGameModel = {
-    val playerOrdering = randomizePlayers(model.players.keys.toList)
-    val deck: Deck = shuffleDeck(Deck(model.config.cards))
+    val playerOrdering = Randomizer.randomizePlayers(model.players.keys.toList)
+    val deck: Deck = Randomizer.shuffleDeck(Deck(model.config.cards))
     PreparationPhaseGameModel(
       config = model.config,
       round = 1,
@@ -49,7 +48,7 @@ case class PreparationPhaseGameModel(
                                       deck: Deck,
                                       diceRolls: Map[PlayerModelId, DiceRoll],
                                       table: PreparationPhaseTableModel,
-                                    ) extends InPlayGameModel with Deterministic {
+                                    ) extends InPlayGameModel {
   override val phase: GamePhase = GamePhase.PREPARATION
 
   val currentPlayer: PlayerModelId = playerOrdering(currentPlayerIndex)
