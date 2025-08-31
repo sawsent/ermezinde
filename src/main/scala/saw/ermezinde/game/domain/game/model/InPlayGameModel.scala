@@ -4,7 +4,6 @@ import saw.ermezinde.game.domain.GameConfig
 import saw.ermezinde.game.domain.board.{Board, BoardPosition, BoardRotation}
 import saw.ermezinde.game.domain.card.{Deck, MissionCard}
 import saw.ermezinde.game.domain.game.GamePhase
-import saw.ermezinde.game.domain.game.state.GameActorState.DiceRoll
 import saw.ermezinde.game.domain.player.PlayerModel
 import saw.ermezinde.game.domain.player.PlayerModel.PlayerModelId
 import saw.ermezinde.game.domain.table.{PlacePhaseTableModel, PreparationPhaseTableModel, ResolvePhaseTableModel}
@@ -25,7 +24,6 @@ object InPlayGameModel {
       missionCards = model.missionCards,
       availableBoards = model.config.boards,
       deck = deck,
-      diceRolls = Map.empty,
       table = PreparationPhaseTableModel.init
     )
   }
@@ -46,14 +44,13 @@ case class PreparationPhaseGameModel(
                                       availableBoards: List[Board],
                                       missionCards: List[MissionCard],
                                       deck: Deck,
-                                      diceRolls: Map[PlayerModelId, DiceRoll],
                                       table: PreparationPhaseTableModel,
                                     ) extends InPlayGameModel {
   override val phase: GamePhase = GamePhase.PREPARATION
 
   val currentPlayer: PlayerModelId = playerOrdering(currentPlayerIndex)
 
-  def chooseBoard(boardIndex: Int, boardPosition: BoardPosition, boardRotation: BoardRotation): PreparationPhaseGameModel = {
+  def placeBoard(boardIndex: Int, boardPosition: BoardPosition, boardRotation: BoardRotation): PreparationPhaseGameModel = {
     val board = availableBoards(boardIndex)
     copy(
       currentPlayerIndex = (currentPlayerIndex + 1) % players.toList.length,
@@ -61,6 +58,7 @@ case class PreparationPhaseGameModel(
       availableBoards = availableBoards.filterNot(_ == board)
     )
   }
+
 }
 
 object PlacePhaseGameModel {

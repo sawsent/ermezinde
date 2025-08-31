@@ -100,11 +100,18 @@ object Boot extends App with Logging {
   printResponse(GetReadyForInPlay(ownerId))
   printResponse(GetReadyForInPlay("sebas"))
 
-  printResponse(SelectBoard(ownerId, 0, BoardPosition.BOTTOM_RIGHT, BoardRotation.`0`))
+  printResponse(SelectBoard(ownerId, 6, BoardPosition.BOTTOM_RIGHT, BoardRotation.`0`))
+  printResponse(SelectBoard("sebas", 0, BoardPosition.BOTTOM_MIDDLE, BoardRotation.`0`))
+  printResponse(SelectBoard(ownerId, 4, BoardPosition.BOTTOM_LEFT, BoardRotation.`0`))
+  printResponse(SelectBoard("sebas", 0, BoardPosition.TOP_LEFT, BoardRotation.`0`))
+  printResponse(SelectBoard(ownerId, 0, BoardPosition.TOP_MIDDLE, BoardRotation.`0`))
+  printResponse(SelectBoard("sebas", 0, BoardPosition.TOP_RIGHT, BoardRotation.`0`))
+  printResponse(SelectBoard("sebas", 0, BoardPosition.TOP_RIGHT, BoardRotation.`0`))
 
   send("get")
 
   Thread.sleep(1000)
+  /*
   println()
   println("-------------------------------------")
   println()
@@ -160,4 +167,6 @@ object Boot extends App with Logging {
 
   printResponse(GetResults)
 
+
+   */
 }

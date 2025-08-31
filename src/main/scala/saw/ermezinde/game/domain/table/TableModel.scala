@@ -18,6 +18,11 @@ case class PreparationPhaseTableModel(
   def placeBoard(board: Board, boardPosition: BoardPosition, boardRotation: BoardRotation): PreparationPhaseTableModel = copy(
     boards = boards ++ Map(boardPosition -> Some(board -> boardRotation))
   )
+  def isFull: Boolean = BoardPosition.all.forall(boards(_).nonEmpty)
+
+  override def toString: String =
+    s"PreparationPhaseTableModel[ " +
+      s"${boards.map { case (boardPosition, board) => s"$boardPosition -> ${board.map(b => s"Board(${b._1.id}, ${b._2})").getOrElse("None")}"}} ]"
 }
 
 object PlacePhaseTableModel {

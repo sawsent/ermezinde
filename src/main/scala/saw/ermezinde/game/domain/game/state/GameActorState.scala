@@ -1,5 +1,6 @@
 package saw.ermezinde.game.domain.game.state
 
+import saw.ermezinde.game.domain.board.BoardPosition
 import saw.ermezinde.game.domain.game.model._
 import saw.ermezinde.game.domain.game.state.GameActorState.{DiceRoll, PlayerId, Timestamp}
 import saw.ermezinde.game.domain.game.state.InCountingGameState.RevealPhase.{ALL_REVEALED, REVEAL_DISCARDED, REVEAL_HAND, REVEAL_MEDALS, REVEAL_MISSIONS, RevealPhase}
@@ -86,10 +87,20 @@ case class BoardSelectionGameState(
                                       players: Map[PlayerId, PlayerModelId],
                                       game: PreparationPhaseGameModel
                                     ) extends PreparationPhaseGameState {
+  def checkMoveOnToDiceRolls: PreparationPhaseGameState = if (game.table.isFull) {
+    OrderingSelectionGameState.init(copy())
+  } else copy()
 }
 
+object OrderingSelectionGameState {
+  def init(state: BoardSelectionGameState): OrderingSelectionGameState = OrderingSelectionGameState(
+    underlying = state,
+    diceRolls = Map.empty
+  )
+}
 case class OrderingSelectionGameState(
-                                    underlying: BoardSelectionGameState
+                                    underlying: BoardSelectionGameState,
+                                    diceRolls: Map[PlayerId, DiceRoll]
                                   ) extends PreparationPhaseGameState {
   override val game: InPlayGameModel = underlying.game
   override val id: RevealPhase = underlying.id
@@ -100,7 +111,8 @@ case class OrderingSelectionGameState(
 
 case class EnigmaPlacementGameState(
                                  underlying: BoardSelectionGameState,
-                                 playerOrdering: List[PlayerId]
+                                 playerOrdering: List[PlayerId],
+                                 enigmaPlacement: Option[BoardPosition]
                                ) extends PreparationPhaseGameState {
   override val game: InPlayGameModel = underlying.game
   override val id: RevealPhase = underlying.id

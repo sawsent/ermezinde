@@ -1,5 +1,6 @@
 package saw.ermezinde.game.behaviour.inplay
 
+import saw.ermezinde.game.GameActor
 import saw.ermezinde.game.GameActor.GameActorResponse
 import saw.ermezinde.game.behaviour.InPlayBehaviour.InPlayGameCommand
 import saw.ermezinde.game.behaviour.fallback.WrongStateFallback
@@ -22,7 +23,7 @@ object PreparationPhaseBehaviour {
 
 }
 trait PreparationPhaseBehaviour extends BehaviourLogging {
-  this: WrongStateFallback =>
+  this: GameActor with WrongStateFallback =>
   private implicit val BN: String = "PreparationPhaseBehaviour"
   def preparationBehaviour(state: PreparationPhaseGameState, cmd: PreparationPhaseCommand): GameActorResponse = {
     (state, cmd) match {
@@ -35,17 +36,23 @@ trait PreparationPhaseBehaviour extends BehaviourLogging {
 
   private def processSelectBoard(state: BoardSelectionGameState, cmd: SelectBoard): GameActorResponse = {
     Validate(
+      (state.game.currentPlayer == state.players(cmd.playerId)) -> s"It is not ${cmd.playerId}'s turn to choose a board'",
       Try(state.game.availableBoards(cmd.boardIndex)).isSuccess -> "There is no board for that index",
-      state.game.table.boardAt(cmd.boardPosition).isEmpty       -> "There is already a board at that location"
+      state.game.table.positionAvailable(cmd.boardPosition)     -> "There is already a board at that location"
     ).map {
-      "Not Implemented but passed validation"
+      val updatedState = state.copy(
+        game = state.game.placeBoard(cmd.boardIndex, cmd.boardPosition, cmd.boardRotation)
+      ).checkMoveOnToDiceRolls
+
+      context.become(behaviour(updatedState))
+      s"Player ${cmd.playerId} choose board ${cmd.boardIndex} to be place at ${cmd.boardPosition} with boardRotation ${cmd.boardRotation}"
     }
   }
 
   private def processRollDice(state: OrderingSelectionGameState, cmd: PreparationPhaseDiceRoll): GameActorResponse = Validate(
-    Either.cond(false, "", "Not Implemented")
+    Right()
   ).map {
-    "Not Implemented but passed validation"
+    "Automatically moving to processing Enigma placement"
   }
 
   private def processEnigmaPlacement(state: EnigmaPlacementGameState, cmd: PlaceEnigma): GameActorResponse = Validate(
