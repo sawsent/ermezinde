@@ -49,7 +49,7 @@ class NoStateBehaviourSpec extends TestKit(ActorSystem("NoStateBehaviour")) with
       gameId,
       ownerId,
       waitingPlayers = Map(ownerId -> NotStartedPlayerModel(UNSET, ready = false)),
-      game = NotStartedGameModel()
+      game = NotStartedGameModel(GameConfig.default)
     )
   }
 

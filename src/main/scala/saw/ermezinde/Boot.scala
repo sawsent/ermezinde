@@ -17,7 +17,6 @@ import saw.ermezinde.game.domain.GameConfig
 import saw.ermezinde.game.domain.board.{BoardPosition, BoardRotation}
 import saw.ermezinde.game.domain.card.MissionCard
 import saw.ermezinde.game.domain.game.model.DiscardPhaseGameModel
-import saw.ermezinde.game.domain.game.state.{BoardSelectionGameState, DiscardPhaseGameState, InCountingGameState}
 import saw.ermezinde.game.domain.player.PlayerModel
 import saw.ermezinde.game.domain.player.Color
 import saw.ermezinde.game.domain.player.Color.{BLUE, RED}

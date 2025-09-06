@@ -7,7 +7,7 @@ import saw.ermezinde.game.behaviour.fallback.WrongStateFallback
 import saw.ermezinde.game.behaviour.inplay.PreparationPhaseBehaviour.{PlaceEnigma, PreparationPhaseCommand, PreparationPhaseDiceRoll, SelectBoard}
 import saw.ermezinde.game.domain.board.{BoardPosition, BoardRotation}
 import saw.ermezinde.game.domain.game.state.GameActorState.PlayerId
-import saw.ermezinde.game.domain.game.state.{BoardSelectionGameState, EnigmaPlacementGameState, OrderingSelectionGameState, PreparationPhaseGameState}
+import saw.ermezinde.game.domain.game.state.inplay.{BoardSelectionGameState, EnigmaPlacementGameState, OrderingSelectionGameState, PreparationPhaseGameState}
 import saw.ermezinde.util.logging.BehaviourLogging
 import saw.ermezinde.util.validation.EitherSyntax.toEither
 import saw.ermezinde.util.validation.Validate

@@ -4,8 +4,9 @@ import saw.ermezinde.game.GameActor
 import saw.ermezinde.game.GameActor.{GameActorCommand, GameActorResponse, GameFailureResponse}
 import saw.ermezinde.game.behaviour.InPreparationBehaviour.{GetReadyForInPlay, InPreparationGameCommand, SelectMissionCard}
 import saw.ermezinde.game.behaviour.fallback.WrongStateFallback
+import saw.ermezinde.game.domain.game.state.{GameActorState, InPreparationGameState}
 import saw.ermezinde.game.domain.game.state.GameActorState.PlayerId
-import saw.ermezinde.game.domain.game.state.{GameActorState, InPlayGameState, InPreparationGameState}
+import saw.ermezinde.game.domain.game.state.inplay.InPlayGameState
 import saw.ermezinde.game.validation.PlayerIdValidation.PlayerIdValidation
 import saw.ermezinde.util.logging.BehaviourLogging
 import saw.ermezinde.util.validation.EitherSyntax.toEither
@@ -69,12 +70,6 @@ trait InPreparationBehaviour extends BehaviourLogging {
         s"Player $playerId is ready for inPlay"
       }
     }
-  }
-
-  private def moveToInPlay(state: InPreparationGameState): Unit = {
-    logger.atInfo().log(s"Game ${state.id} moving to InPlay")
-    val updateState = InPlayGameState.init(state)
-    context.become(behaviour(updateState))
   }
 
   implicit class InPreparationStateValidation(state: InPreparationGameState) {
