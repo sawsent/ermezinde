@@ -2,7 +2,7 @@ package saw.ermezinde.game.domain.game.model
 
 import saw.ermezinde.game.domain.GameConfig
 import saw.ermezinde.game.domain.board.{Board, BoardPosition, BoardRotation}
-import saw.ermezinde.game.domain.card.{Deck, MissionCard}
+import saw.ermezinde.game.domain.card.{Card, Deck, MissionCard}
 import saw.ermezinde.game.domain.game.GamePhase
 import saw.ermezinde.game.domain.player.PlayerModel
 import saw.ermezinde.game.domain.player.PlayerModel.PlayerModelId
@@ -35,6 +35,20 @@ sealed trait InPlayGameModel extends GameModel {
   val enigmaOwner: Option[PlayerModelId]
 }
 
+object PreparationPhaseGameModel {
+  def newRound(model: DiscardPhaseGameModel): PreparationPhaseGameModel = PreparationPhaseGameModel(
+    config = model.config,
+    round = model.round + 1,
+    players = model.players,
+    enigmaOwner = model.enigmaOwner,
+    playerOrdering = model.config.randomizer.randomizePlayers(model.players.keys.toList),
+    currentPlayerIndex = 0,
+    availableBoards = model.config.boards,
+    missionCards = model.missionCards,
+    deck = model.deck,
+    table = PreparationPhaseTableModel.init,
+  )
+}
 case class PreparationPhaseGameModel(
                                       config: GameConfig,
                                       round: Int,
@@ -91,18 +105,41 @@ case class ResolvePhaseGameModel(
                                   players: Map[PlayerModelId, PlayerModel],
                                   enigmaOwner: Option[PlayerModelId],
                                   missionCards: List[MissionCard],
-                                  table: ResolvePhaseTableModel
+                                  table: ResolvePhaseTableModel,
+                                  deck: Deck
                                 ) extends InPlayGameModel {
   override val phase: GamePhase = GamePhase.RESOLVE
 }
 
+object DiscardPhaseGameModel {
+  def init(model: ResolvePhaseGameModel): DiscardPhaseGameModel = DiscardPhaseGameModel(
+    config = model.config,
+    round = model.round,
+    players = model.players,
+    enigmaOwner = model.enigmaOwner,
+    missionCards = model.missionCards,
+    deck = model.deck
+  )
+}
 case class DiscardPhaseGameModel(
                                   config: GameConfig,
                                   round: Int,
                                   players: Map[PlayerModelId, PlayerModel],
                                   enigmaOwner: Option[PlayerModelId],
                                   missionCards: List[MissionCard],
+                                  deck: Deck
                                 ) extends InPlayGameModel {
   override val phase: GamePhase = GamePhase.DISCARD
+
+  def playerDiscardCards(id: PlayerModelId, cardsToDiscard: List[Card]): DiscardPhaseGameModel = {
+    val updatedPlayer = players(id).copy(
+      discarded = players(id).discarded ++ cardsToDiscard,
+      hand = players(id).hand.filter(cardsToDiscard.contains(_))
+    )
+    val updatedPlayers = players + (id -> updatedPlayer)
+    copy(
+      players = updatedPlayers
+    )
+  }
 }
 

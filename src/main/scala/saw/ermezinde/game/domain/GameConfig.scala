@@ -8,6 +8,7 @@ object GameConfig {
   def default: GameConfig = GameConfig(
     randomizer = GameRandomizer.KeepOrder,
     nrOfMissionCards = 4,
+    nrOfRounds = 4,
     cards = List.empty,
     boards = List.empty
   )
@@ -15,6 +16,7 @@ object GameConfig {
 case class GameConfig(
                      randomizer: GameRandomizer,
                      nrOfMissionCards: Int,
+                     nrOfRounds: Int,
                      cards: List[Card],
                      boards: List[Board]
                      ) {

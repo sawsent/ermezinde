@@ -9,6 +9,15 @@ import saw.ermezinde.game.syntax.DiceRollSyntax.DiceRollSyntax
 
 import scala.math.pow
 
+object PreparationPhaseGameState {
+  def newRound(state: DiscardPhaseGameState): PreparationPhaseGameState = BoardSelectionGameState(
+    id = state.id,
+    ownerId = state.ownerId,
+    gameStartTime = state.gameStartTime,
+    players = state.players,
+    game = PreparationPhaseGameModel.newRound(state.game),
+  )
+}
 sealed trait PreparationPhaseGameState extends InPlayGameState
 case class BoardSelectionGameState(
                                     id: String,

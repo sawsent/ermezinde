@@ -51,9 +51,7 @@ object Boot extends App with Logging {
   }.filter(_.isSuccess).map(_.toOption.get)
 
 
-  private val defaultGameConfig = GameConfig(
-    randomizer = GameRandomizer.KeepOrder,
-    nrOfMissionCards = 4,
+  private val defaultGameConfig = GameConfig.default.copy(
     cards = deck,
     boards = boardDeck
   )
