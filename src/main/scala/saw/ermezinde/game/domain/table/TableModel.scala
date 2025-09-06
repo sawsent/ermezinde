@@ -26,7 +26,7 @@ case class PreparationPhaseTableModel(
 }
 
 object PlacePhaseTableModel {
-  def init(table: PreparationPhaseTableModel): PlacePhaseTableModel = PlacePhaseTableModel(
+  def init(table: PreparationPhaseTableModel, enigmaPlacement: BoardPosition): PlacePhaseTableModel = PlacePhaseTableModel(
 
   )
 }

@@ -5,13 +5,20 @@ import saw.ermezinde.game.behaviour._
 import saw.ermezinde.game.behaviour.fallback.WrongStateFallback
 import saw.ermezinde.game.domain.GameConfig
 import saw.ermezinde.game.domain.game.state.{GameActorState, GameNoState, GameState}
+import saw.ermezinde.game.util.RandomizationCapability
+import saw.ermezinde.util.Randomization
 import saw.ermezinde.util.logging.Logging
 
 object GameActor {
-  def props(config: GameConfig): Props = Props(
+  def props(
+             config: GameConfig,
+             providedRandomizer: Randomization
+           ): Props = Props(
     new GameActor(config) with NoStateBehaviour
       with NotStartedBehaviour with InPreparationBehaviour with InPlayBehaviour
-      with InCountingBehaviour with FinishedBehaviour with WrongStateFallback
+      with InCountingBehaviour with FinishedBehaviour with WrongStateFallback with RandomizationCapability {
+        override protected val randomizer: Randomization = providedRandomizer
+    }
   )
   // Commands
   trait GameActorCommand
@@ -47,6 +54,7 @@ class GameActor(val defaultConfig: GameConfig) extends Actor with Logging {
     case state: GameActorState => context.become(behaviour(state))
     case "get" =>
       println(state)
+      sender() ! state
     case msg => logger.info(s"GameActor Received unknown message: $msg while with state: $state")
   }
 }

@@ -1,17 +1,8 @@
 package saw.ermezinde.game.domain.game.state
 
-import saw.ermezinde.game.domain.board.BoardPosition
 import saw.ermezinde.game.domain.game.model._
-import saw.ermezinde.game.domain.game.state.GameActorState.{DiceRoll, PlayerId, Timestamp}
-import saw.ermezinde.game.domain.game.state.InCountingGameState.RevealPhase._
-import saw.ermezinde.game.domain.game.state.NotStartedGameState.NotStartedPlayerModel
-import saw.ermezinde.game.domain.player.Color
+import saw.ermezinde.game.domain.game.state.GameActorState.{PlayerId, Timestamp}
 import saw.ermezinde.game.domain.player.PlayerModel.PlayerModelId
-import saw.ermezinde.game.domain.result.ResultTable
-import saw.ermezinde.game.syntax.DiceRollSyntax.DiceRollSyntax
-import saw.ermezinde.util.Randomizer
-
-import scala.math.pow
 
 object GameActorState {
   type PlayerId = String
@@ -31,4 +22,5 @@ trait GameState extends GameActorState {
   val gameStartTime: Option[Timestamp]
   val players: Map[PlayerId, PlayerModelId]
   val game: GameModel
+  def rPlayers: Map[PlayerModelId, PlayerId] = players.map(kv => kv._2 -> kv._1)
 }

@@ -11,7 +11,8 @@ import saw.ermezinde.game.behaviour.inplay.ResolvePhaseBehaviour.ResolvePhaseCom
 import saw.ermezinde.game.behaviour.inplay.{DiscardPhaseBehaviour, PlacePhaseBehaviour, PreparationPhaseBehaviour, ResolvePhaseBehaviour}
 import saw.ermezinde.game.domain.game.state.GameActorState.PlayerId
 import saw.ermezinde.game.domain.game.state._
-import saw.ermezinde.game.domain.game.state.inplay.{DiscardPhaseGameState, InPlayGameState, PlacePhaseGameState, PreparationPhaseGameState, ResolvePhaseGameState}
+import saw.ermezinde.game.domain.game.state.inplay._
+import saw.ermezinde.game.util.RandomizationCapability
 import saw.ermezinde.game.validation.PlayerIdValidation.PlayerIdValidation
 import saw.ermezinde.util.logging.BehaviourLogging
 import saw.ermezinde.util.validation.Validate
@@ -23,7 +24,7 @@ object InPlayBehaviour {
 }
 trait InPlayBehaviour extends PreparationPhaseBehaviour with PlacePhaseBehaviour with ResolvePhaseBehaviour with DiscardPhaseBehaviour
   with BehaviourLogging {
-  this: GameActor with WrongStateFallback =>
+  this: GameActor with WrongStateFallback with RandomizationCapability =>
 
   private implicit val BN: String = "InPlayBehaviour"
 

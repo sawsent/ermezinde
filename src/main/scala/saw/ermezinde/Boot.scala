@@ -7,19 +7,17 @@ import org.apache.pekko.util.Timeout
 import saw.ermezinde.adapter.config.{Config2Board, Config2Card}
 import saw.ermezinde.game.GameActor
 import saw.ermezinde.game.GameActor.{GameActorCommand, GameActorResponse}
-import saw.ermezinde.game.behaviour.FinishedBehaviour.GetResults
-import saw.ermezinde.game.behaviour.InCountingBehaviour._
 import saw.ermezinde.game.behaviour.InPreparationBehaviour.{GetReadyForInPlay, SelectMissionCard}
 import saw.ermezinde.game.behaviour.NoStateBehaviour.CreateGameCommand
 import saw.ermezinde.game.behaviour.NotStartedBehaviour.{PlayerJoinGame, PlayerReady, PlayerSelectColor, StartGame}
-import saw.ermezinde.game.behaviour.inplay.PreparationPhaseBehaviour.SelectBoard
-import saw.ermezinde.game.domain.GameConfig
+import saw.ermezinde.game.behaviour.inplay.PreparationPhaseBehaviour.{PlaceEnigma, RollDicePreparation, SelectBoard}
+import saw.ermezinde.game.domain.board.BoardPosition.TOP_LEFT
+import saw.ermezinde.game.domain.{GameConfig, GameRandomizer}
 import saw.ermezinde.game.domain.board.{BoardPosition, BoardRotation}
-import saw.ermezinde.game.domain.card.MissionCard
-import saw.ermezinde.game.domain.game.model.DiscardPhaseGameModel
-import saw.ermezinde.game.domain.player.PlayerModel
+import saw.ermezinde.game.domain.game.state.inplay.{EnigmaPlacementGameState, OrderingSelectionGameState}
 import saw.ermezinde.game.domain.player.Color
-import saw.ermezinde.game.domain.player.Color.{BLUE, RED}
+import saw.ermezinde.game.domain.player.Color.BLUE
+import saw.ermezinde.util.Deterministic
 import saw.ermezinde.util.logging.Logging
 
 import scala.concurrent.Await
@@ -54,12 +52,27 @@ object Boot extends App with Logging {
 
 
   private val defaultGameConfig = GameConfig(
+    randomizer = GameRandomizer.KeepOrder,
     nrOfMissionCards = 4,
     cards = deck,
     boards = boardDeck
   )
 
-  private val testGameActor = system.actorOf(GameActor.props(defaultGameConfig))
+  val randomizer = new Deterministic {
+    var x = 0
+    val diceRolls = List((1, 1), (1, 1), (1, 2), (2, 2))
+    override def rollDice(): (Int, Int) = {
+      val r = diceRolls(x)
+      x += 1
+      r
+    }
+  }
+
+  private val testGameActor = system.actorOf(
+    GameActor.props(
+      defaultGameConfig,
+      randomizer
+    ))
   implicit val timeout: Timeout = Timeout(200.millis)
   val duration = Duration(200, MILLISECONDS)
 
@@ -72,6 +85,10 @@ object Boot extends App with Logging {
 
   def send(any: Any): Unit = {
     testGameActor ! any
+  }
+
+  def askActor(any: Any): Any = {
+    Await.result(testGameActor ? any, duration)
   }
 
 
@@ -107,7 +124,26 @@ object Boot extends App with Logging {
   printResponse(SelectBoard("sebas", 0, BoardPosition.TOP_RIGHT, BoardRotation.`0`))
   printResponse(SelectBoard("sebas", 0, BoardPosition.TOP_RIGHT, BoardRotation.`0`))
 
-  send("get")
+  printResponse(RollDicePreparation("sebas"))
+  printResponse(RollDicePreparation("sebas"))
+  printResponse(RollDicePreparation(ownerId))
+  val state = askActor("get").asInstanceOf[OrderingSelectionGameState]
+  printResponse(RollDicePreparation("leonor"))
+  printResponse(RollDicePreparation("sebas"))
+  printResponse(RollDicePreparation(ownerId))
+
+  send(EnigmaPlacementGameState.init(
+    state.underlying.copy(
+      game = state.underlying.game.copy(enigmaOwner = Some(BLUE))
+    ),
+    List("vicente", "sebas"),
+  ))
+
+  printResponse(PlaceEnigma("leonor", BoardPosition.TOP_LEFT))
+  printResponse(PlaceEnigma("sebas", BoardPosition.TOP_LEFT))
+  printResponse(PlaceEnigma("vicente", BoardPosition.TOP_LEFT))
+
+  askActor("get")
 
   Thread.sleep(1000)
   /*

@@ -7,14 +7,13 @@ import saw.ermezinde.game.domain.game.GamePhase
 import saw.ermezinde.game.domain.player.PlayerModel
 import saw.ermezinde.game.domain.player.PlayerModel.PlayerModelId
 import saw.ermezinde.game.domain.table.{PlacePhaseTableModel, PreparationPhaseTableModel, ResolvePhaseTableModel}
-import saw.ermezinde.util.Randomizer
 
 
 object InPlayGameModel {
 
   def init(model: InPreparationGameModel): PreparationPhaseGameModel = {
-    val playerOrdering = Randomizer.randomizePlayers(model.players.keys.toList)
-    val deck: Deck = Randomizer.shuffleDeck(Deck(model.config.cards))
+    val playerOrdering = model.config.randomizer.randomizePlayers(model.players.keys.toList)
+    val deck: Deck = model.config.randomizer.shuffleDeck(Deck(model.config.cards))
     PreparationPhaseGameModel(
       config = model.config,
       round = 1,
@@ -24,21 +23,23 @@ object InPlayGameModel {
       missionCards = model.missionCards,
       availableBoards = model.config.boards,
       deck = deck,
-      table = PreparationPhaseTableModel.init
+      table = PreparationPhaseTableModel.init,
+      enigmaOwner = None
     )
   }
 }
 sealed trait InPlayGameModel extends GameModel {
-  override val players: Map[PlayerModelId, PlayerModel]
   val phase: GamePhase
   val round: Int
   val missionCards: List[MissionCard]
+  val enigmaOwner: Option[PlayerModelId]
 }
 
 case class PreparationPhaseGameModel(
                                       config: GameConfig,
                                       round: Int,
                                       players: Map[PlayerModelId, PlayerModel],
+                                      enigmaOwner: Option[PlayerModelId],
                                       playerOrdering: List[PlayerModelId],
                                       currentPlayerIndex: Int,
                                       availableBoards: List[Board],
@@ -62,19 +63,21 @@ case class PreparationPhaseGameModel(
 }
 
 object PlacePhaseGameModel {
-  def init(model: PreparationPhaseGameModel, playerOrdering: List[PlayerModelId]): PlacePhaseGameModel = PlacePhaseGameModel(
+  def init(model: PreparationPhaseGameModel, playerOrdering: List[PlayerModelId], enigmaPlacement: BoardPosition): PlacePhaseGameModel = PlacePhaseGameModel(
     config = model.config,
     round = model.round,
     players = model.players,
     missionCards = model.missionCards,
-    table = PlacePhaseTableModel.init(model.table),
-    playerOrdering = playerOrdering
+    table = PlacePhaseTableModel.init(model.table, enigmaPlacement),
+    playerOrdering = playerOrdering,
+    enigmaOwner = model.enigmaOwner
   )
 }
 case class PlacePhaseGameModel(
                                 config: GameConfig,
                                 round: Int,
                                 players: Map[PlayerModelId, PlayerModel],
+                                enigmaOwner: Option[PlayerModelId],
                                 missionCards: List[MissionCard],
                                 playerOrdering: List[PlayerModelId],
                                 table: PlacePhaseTableModel
@@ -86,6 +89,7 @@ case class ResolvePhaseGameModel(
                                   config: GameConfig,
                                   round: Int,
                                   players: Map[PlayerModelId, PlayerModel],
+                                  enigmaOwner: Option[PlayerModelId],
                                   missionCards: List[MissionCard],
                                   table: ResolvePhaseTableModel
                                 ) extends InPlayGameModel {
@@ -96,6 +100,7 @@ case class DiscardPhaseGameModel(
                                   config: GameConfig,
                                   round: Int,
                                   players: Map[PlayerModelId, PlayerModel],
+                                  enigmaOwner: Option[PlayerModelId],
                                   missionCards: List[MissionCard],
                                 ) extends InPlayGameModel {
   override val phase: GamePhase = GamePhase.DISCARD

@@ -21,11 +21,8 @@ class OrderingSelectionGameStateSpec extends AnyFlatSpecLike {
       underlying = BoardSelectionGameState("test", "test", None, Map("t1" -> RED, "t2" -> BLUE, "t3" -> GREEN, "t4" -> YELLOW), PreparationPhaseGameModel(GameConfig.default, round = 0, players = Map(RED -> PlayerModel.init(RED), BLUE -> PlayerModel.init(BLUE)), playerOrdering = List(RED, BLUE), currentPlayerIndex = 0, availableBoards = List.empty, missionCards = List.empty, deck = Deck(List.empty), table = PreparationPhaseTableModel(Map.empty))),
       currentPlayerIndex = 0,
       playersContesting = List("t1", "t2", "t3", "t4"),
-      contestingForSpots = 0,
       diceRolls = List.empty,
-      results = Map.empty,
       currentRoundDiceRolls = Map.empty,
-      currentRollRound = 0
     )
       .playerRollDice("t1", (1, 1)).asInstanceOf[OrderingSelectionGameState]
       .playerRollDice("t2", (1, 1)).asInstanceOf[OrderingSelectionGameState]
