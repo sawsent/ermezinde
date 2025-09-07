@@ -134,7 +134,7 @@ case class DiscardPhaseGameModel(
   def playerDiscardCards(id: PlayerModelId, cardsToDiscard: List[Card]): DiscardPhaseGameModel = {
     val updatedPlayer = players(id).copy(
       discarded = players(id).discarded ++ cardsToDiscard,
-      hand = players(id).hand.filter(cardsToDiscard.contains(_))
+      hand = players(id).hand.filterNot(cardsToDiscard.contains(_))
     )
     val updatedPlayers = players + (id -> updatedPlayer)
     copy(

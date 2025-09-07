@@ -11,6 +11,7 @@ import org.mockito.MockitoSugar.verify
 import org.scalatest.matchers.should.Matchers
 import saw.ermezinde.game.GameActor.{GameFailureResponse, GameSuccessResponse}
 import saw.ermezinde.game.behaviour.NoStateBehaviour.CreateGameCommand
+import saw.ermezinde.game.behaviour.fixture.BehaviourFixture
 import saw.ermezinde.game.domain.GameConfig
 import saw.ermezinde.game.domain.game.state.NotStartedGameState.NotStartedPlayerModel
 import saw.ermezinde.game.domain.game.model.NotStartedGameModel
@@ -24,7 +25,7 @@ class NoStateBehaviourSpec extends TestKit(ActorSystem("NoStateBehaviour")) with
 
   trait NoStateBehaviourFixture extends BehaviourFixture {
     class Victim(config: GameConfig) extends GameActor(config) with NoStateBehaviour with DoNothingNotStartedBehaviour with DoNothingInPreparationBehaviour with DoNothingInPlayBehaviour
-      with DoNothingInCountingBehaviour with DoNothingFinishedBehaviour with TestWrongStateFallback with TestDebugBehaviour {
+      with DoNothingInCountingBehaviour with DoNothingFinishedBehaviour with TestWrongStateFallback with TestDebugBehaviour with TestRandomizationCapability {
 
       override protected def gameBehaviour(state: GameActorState): Receive = noStateBehaviour(state)
     }

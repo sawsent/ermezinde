@@ -1,5 +1,8 @@
 package saw.ermezinde.game.domain.card
 
+object Deck {
+  def empty: Deck = Deck(List.empty)
+}
 case class Deck(
                cards: List[Card]
                ) {

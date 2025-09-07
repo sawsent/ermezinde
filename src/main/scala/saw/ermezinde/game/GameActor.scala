@@ -32,7 +32,7 @@ object GameActor {
 class GameActor(val defaultConfig: GameConfig) extends Actor with Logging {
   this: NoStateBehaviour with NotStartedBehaviour with FinishedBehaviour with InPreparationBehaviour with InPlayBehaviour with InCountingBehaviour =>
 
-  private def receivedLogMessage(state: GameActorState): PartialFunction[Any, Any] = cmd => {
+  def beforeProcessing(state: GameActorState): PartialFunction[Any, Any] = cmd => {
     logger.debug(s"(${state.id}) Received command: $cmd.")
     cmd
   }
@@ -48,13 +48,11 @@ class GameActor(val defaultConfig: GameConfig) extends Actor with Logging {
       .orElse(finishedBehaviour(state))
   }
 
-  def behaviour(state: GameActorState): Receive = receivedLogMessage(state).andThen(gameBehaviour(state).orElse(common(state)))
+  def behaviour(state: GameActorState): Receive = beforeProcessing(state).andThen(gameBehaviour(state).orElse(common(state)))
 
   def common(state: GameActorState): Receive = {
     case state: GameActorState => context.become(behaviour(state))
-    case "get" =>
-      println(state)
-      sender() ! state
+    case "get" => sender() ! state
     case msg => logger.info(s"GameActor Received unknown message: $msg while with state: $state")
   }
 }
