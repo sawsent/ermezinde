@@ -10,13 +10,15 @@ object GameConfig {
     nrOfMissionCards = 4,
     nrOfRounds = 4,
     cards = List.empty,
-    boards = List.empty
+    boards = List.empty,
+    enigmaPointsAwarded = 2
   )
 }
 case class GameConfig(
                      randomizer: GameRandomizer,
                      nrOfMissionCards: Int,
                      nrOfRounds: Int,
+                     enigmaPointsAwarded: Int,
                      cards: List[Card],
                      boards: List[Board]
                      ) {

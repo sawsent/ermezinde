@@ -3,7 +3,7 @@ package saw.ermezinde.game.domain.game.state
 import saw.ermezinde.game.domain.game.model.InCountingGameModel
 import saw.ermezinde.game.domain.game.state.GameActorState.{PlayerId, Timestamp}
 import saw.ermezinde.game.domain.game.state.InCountingGameState.RevealPhase._
-import saw.ermezinde.game.domain.game.state.inplay.InPlayGameState
+import saw.ermezinde.game.domain.game.state.inplay.{DiscardPhaseGameState, InPlayGameState}
 import saw.ermezinde.game.domain.player.PlayerModel.PlayerModelId
 import saw.ermezinde.game.domain.result.ResultTable
 
@@ -18,7 +18,7 @@ object InCountingGameState {
     val ALL_REVEALED: RevealPhase = "ALL_REVEALED"
   }
 
-  def init(state: InPlayGameState): InCountingGameState = {
+  def init(state: DiscardPhaseGameState): InCountingGameState = {
     val updateGame: InCountingGameModel = InCountingGameModel.init(state.game)
     val resultTable = ResultTable.fromGameResults(state.players, updateGame.result)
     InCountingGameState(

@@ -10,18 +10,20 @@ import scala.math.ceil
 
 object InCountingGameModel {
 
-  def init(model: InPlayGameModel): InCountingGameModel = {
+  def init(model: DiscardPhaseGameModel): InCountingGameModel = {
     InCountingGameModel(
       model.config,
       players = model.players,
-      missionCards = model.missionCards
+      missionCards = model.missionCards,
+      enigmaOwner = model.enigmaOwner
     )
   }
 }
 case class InCountingGameModel(
                                 config: GameConfig,
                                 players: Map[PlayerModelId, PlayerModel],
-                                missionCards: List[MissionCard]
+                                missionCards: List[MissionCard],
+                                enigmaOwner: Option[PlayerModelId]
                               ) extends GameModel {
   val result: Map[PlayerModelId, PlayerResults] = {
     val missionCardWinners = missionCards.map(missionCard => {
@@ -46,6 +48,7 @@ case class InCountingGameModel(
         medals = model.medalsInHand,
         missionCardPoints = missionCards.map(mc => mc -> mc.pointsInHand(model.hand)).toMap,
         missionCardAwards = missionCards.map(mc => missionCardWinners(mc).getOrElse(id, 0)).sum,
+        enigmaPoints = enigmaOwner.filter(_ == id).map(_ => config.enigmaPointsAwarded).getOrElse(0),
         model.hand
       )
     }

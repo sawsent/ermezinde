@@ -3,13 +3,14 @@ package saw.ermezinde.game.domain.result
 import saw.ermezinde.game.domain.card.{Card, MissionCard}
 
 object PlayerResults {
-  def hidden(discardedAmount: Int, medals: Int, missionCardPoints: Map[MissionCard, Int], missionCardAwards: Int, hand: List[Card]): PlayerResults =
+  def hidden(discardedAmount: Int, medals: Int, missionCardPoints: Map[MissionCard, Int], missionCardAwards: Int, enigmaPoints: Int, hand: List[Card]): PlayerResults =
     PlayerResults(
       Hidden(discardedAmount),
       Hidden(medals),
       missionCardPoints.map { case (mc, i) => mc -> Hidden(i) },
       Hidden(missionCardAwards),
-      Hidden(discardedAmount + medals + missionCardAwards),
+      enigmaPoints,
+      Hidden(discardedAmount + medals + missionCardAwards + enigmaPoints),
       Hidden(hand)
     )
 }
@@ -19,15 +20,16 @@ case class PlayerResults(
                         medals: Result[Int],
                         missionCardPoints: Map[MissionCard, Result[Int]],
                         missionCardAwards: Result[Int],
+                        enigmaPoints: Int,
                         total: Result[Int],
                         hand: Result[List[Card]]
                         ) {
   def hideAll: PlayerResults = copy(
-    discardedAmount.hide,
-    medals.hide,
-    missionCardPoints.map(kv => kv._1 -> kv._2.hide),
-    missionCardAwards.hide,
-    total.hide
+    discardedAmount = discardedAmount.hide,
+    medals = medals.hide,
+    missionCardPoints = missionCardPoints.map(kv => kv._1 -> kv._2.hide),
+    missionCardAwards = missionCardAwards.hide,
+    total = total.hide
   )
 
   def revealDiscarded: PlayerResults = copy(discardedAmount = discardedAmount.reveal)
