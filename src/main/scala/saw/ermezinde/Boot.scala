@@ -12,10 +12,11 @@ import saw.ermezinde.game.behaviour.NoStateBehaviour.CreateGameCommand
 import saw.ermezinde.game.behaviour.NotStartedBehaviour.{PlayerJoinGame, PlayerReady, PlayerSelectColor, StartGame}
 import saw.ermezinde.game.behaviour.inplay.PreparationPhaseBehaviour.{PlaceEnigma, RollDicePreparation, SelectBoard}
 import saw.ermezinde.game.domain.GameConfig
-import saw.ermezinde.game.domain.board.{BoardPosition, BoardRotation}
+import saw.ermezinde.game.domain.board.{Board, BoardPosition, BoardRotation, _90}
 import saw.ermezinde.game.domain.game.state.inplay.{EnigmaPlacementGameState, OrderingSelectionGameState}
 import saw.ermezinde.game.domain.player.Color
 import saw.ermezinde.game.domain.player.Color.BLUE
+import saw.ermezinde.game.domain.table.{PlacePhaseTableModel, PreparationPhaseTableModel}
 import saw.ermezinde.util.Deterministic
 import saw.ermezinde.util.logging.Logging
 
@@ -26,9 +27,7 @@ import scala.util.{Failure, Success, Try}
 
 object Boot extends App with Logging {
   println("####### Starting Ermezinde Server #######")
-  println((0 until 90/90).toList)
-  println((0 until 180/90).toList)
-  println((0 until 270/90).toList)
+
 
   private val config = ConfigFactory.load()
 
@@ -116,13 +115,13 @@ object Boot extends App with Logging {
   printResponse(GetReadyForInPlay(ownerId))
   printResponse(GetReadyForInPlay("sebas"))
 
-  printResponse(SelectBoard(ownerId, 6, BoardPosition.BOTTOM_RIGHT, BoardRotation.`0`))
-  printResponse(SelectBoard("sebas", 0, BoardPosition.BOTTOM_MIDDLE, BoardRotation.`0`))
-  printResponse(SelectBoard(ownerId, 4, BoardPosition.BOTTOM_LEFT, BoardRotation.`0`))
-  printResponse(SelectBoard("sebas", 0, BoardPosition.TOP_LEFT, BoardRotation.`0`))
-  printResponse(SelectBoard(ownerId, 0, BoardPosition.TOP_MIDDLE, BoardRotation.`0`))
-  printResponse(SelectBoard("sebas", 0, BoardPosition.TOP_RIGHT, BoardRotation.`0`))
-  printResponse(SelectBoard("sebas", 0, BoardPosition.TOP_RIGHT, BoardRotation.`0`))
+  printResponse(SelectBoard(ownerId, 6, BoardPosition.BR, BoardRotation.`0`))
+  printResponse(SelectBoard("sebas", 0, BoardPosition.BM, BoardRotation.`0`))
+  printResponse(SelectBoard(ownerId, 4, BoardPosition.BL, BoardRotation.`0`))
+  printResponse(SelectBoard("sebas", 0, BoardPosition.TL, BoardRotation.`0`))
+  printResponse(SelectBoard(ownerId, 0, BoardPosition.TM, BoardRotation.`0`))
+  printResponse(SelectBoard("sebas", 0, BoardPosition.TR, BoardRotation.`0`))
+  printResponse(SelectBoard("sebas", 0, BoardPosition.TR, BoardRotation.`0`))
 
   printResponse(RollDicePreparation("sebas"))
   printResponse(RollDicePreparation("sebas"))
@@ -139,9 +138,9 @@ object Boot extends App with Logging {
     List("vicente", "sebas"),
   ))
 
-  printResponse(PlaceEnigma("leonor", BoardPosition.TOP_LEFT))
-  printResponse(PlaceEnigma("sebas", BoardPosition.TOP_LEFT))
-  printResponse(PlaceEnigma("vicente", BoardPosition.TOP_LEFT))
+  printResponse(PlaceEnigma("leonor", BoardPosition.TL))
+  printResponse(PlaceEnigma("sebas", BoardPosition.TL))
+  printResponse(PlaceEnigma("vicente", BoardPosition.TL))
 
   askActor("get")
 

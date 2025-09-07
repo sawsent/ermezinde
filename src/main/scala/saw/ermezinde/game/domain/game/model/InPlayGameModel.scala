@@ -1,7 +1,7 @@
 package saw.ermezinde.game.domain.game.model
 
 import saw.ermezinde.game.domain.GameConfig
-import saw.ermezinde.game.domain.board.{Board, BoardPosition, BoardRotation}
+import saw.ermezinde.game.domain.board.{Board, BoardInfo, BoardPosition, BoardRotation}
 import saw.ermezinde.game.domain.card.{Card, Deck, MissionCard}
 import saw.ermezinde.game.domain.game.GamePhase
 import saw.ermezinde.game.domain.player.PlayerModel
@@ -32,6 +32,7 @@ sealed trait InPlayGameModel extends GameModel {
   val phase: GamePhase
   val round: Int
   val missionCards: List[MissionCard]
+  val deck: Deck
 }
 
 object PreparationPhaseGameModel {
@@ -55,7 +56,7 @@ case class PreparationPhaseGameModel(
                                       enigmaOwner: Option[PlayerModelId],
                                       playerOrdering: List[PlayerModelId],
                                       currentPlayerIndex: Int,
-                                      availableBoards: List[Board],
+                                      availableBoards: List[BoardInfo],
                                       missionCards: List[MissionCard],
                                       deck: Deck,
                                       table: PreparationPhaseTableModel,
@@ -80,6 +81,8 @@ object PlacePhaseGameModel {
     config = model.config,
     round = model.round,
     players = model.players,
+    deck = model.deck,
+    currentPlayerIdx = 0,
     missionCards = model.missionCards,
     table = PlacePhaseTableModel.init(model.table, enigmaPlacement),
     playerOrdering = playerOrdering,
@@ -90,10 +93,15 @@ case class PlacePhaseGameModel(
                                 round: Int,
                                 players: Map[PlayerModelId, PlayerModel],
                                 missionCards: List[MissionCard],
+                                deck: Deck,
                                 playerOrdering: List[PlayerModelId],
+                                currentPlayerIdx: Int,
                                 table: PlacePhaseTableModel
                               ) extends InPlayGameModel {
   override val phase: GamePhase = GamePhase.PLACE
+
+  val currentPlayer: PlayerModelId = playerOrdering(currentPlayerIdx)
+  def nextPlayer: PlacePhaseGameModel = copy(currentPlayerIdx = (currentPlayerIdx + 1) % playerOrdering.length)
 }
 
 case class ResolvePhaseGameModel(

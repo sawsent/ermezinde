@@ -8,7 +8,7 @@ object GameRandomizer {
   object KeepOrder extends GameRandomizer {
     override def randomizePlayers(players: List[PlayerModelId]): List[PlayerModelId] = players
     override def shuffleDeck(deck: Deck): Deck = deck
-    override def randomTablePosition: BoardPosition = BoardPosition.TOP_LEFT
+    override def randomTablePosition: BoardPosition = BoardPosition.TL
   }
 }
 trait GameRandomizer {

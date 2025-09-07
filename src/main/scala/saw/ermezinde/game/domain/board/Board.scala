@@ -1,11 +1,13 @@
 package saw.ermezinde.game.domain.board
 
+import saw.ermezinde.game.domain.slot.{PFSlot, SlotPosition}
+
 case class Board(
                 id: String,
                 resolveOrderNumber: Int,
                 placePhaseBoardPower: Option[PlacePhaseBoardPower],
                 resolvePhaseBoardPower: Option[ResolvePhaseBoardPower],
-                slots: Map[SlotPosition, Slot]
+                slots: Map[SlotPosition, PFSlot]
                 ) {
   def hasMiddleSlot: Boolean = slots.keys.toList.contains(SlotPosition.MIDDLE)
 
