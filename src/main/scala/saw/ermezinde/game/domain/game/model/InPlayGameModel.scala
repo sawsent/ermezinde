@@ -1,7 +1,7 @@
 package saw.ermezinde.game.domain.game.model
 
 import saw.ermezinde.game.domain.GameConfig
-import saw.ermezinde.game.domain.board.{Board, BoardInfo, BoardPosition, BoardRotation}
+import saw.ermezinde.game.domain.board.{PFBoard, BoardInfo, BoardPosition, BoardRotation}
 import saw.ermezinde.game.domain.card.{Card, Deck, MissionCard}
 import saw.ermezinde.game.domain.game.GamePhase
 import saw.ermezinde.game.domain.player.PlayerModel

@@ -2,7 +2,7 @@ package saw.ermezinde.adapter.config
 
 import com.typesafe.config.Config
 import saw.ermezinde.game.domain.board.ResolveOrderNumberType.{PreSet, ViaDice}
-import saw.ermezinde.game.domain.board.{Board, BoardInfo, PlacePhaseBoardPower, ResolveOrderNumberType, ResolvePhaseBoardPower}
+import saw.ermezinde.game.domain.board.{PFBoard, BoardInfo, PlacePhaseBoardPower, ResolveOrderNumberType, ResolvePhaseBoardPower}
 import saw.ermezinde.game.domain.slot._
 
 import scala.jdk.CollectionConverters.ListHasAsScala

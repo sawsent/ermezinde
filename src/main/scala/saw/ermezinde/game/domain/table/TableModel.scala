@@ -1,7 +1,7 @@
 package saw.ermezinde.game.domain.table
 
 import saw.ermezinde.game.domain.board.BoardPosition._
-import saw.ermezinde.game.domain.board.{Board, BoardInfo, BoardPosition, BoardRotation}
+import saw.ermezinde.game.domain.board.{PFBoard, BoardInfo, BoardPosition, BoardRotation}
 import saw.ermezinde.game.domain.slot.{PFSlot, SlotPosition}
 
 object PreparationPhaseTableModel {
@@ -29,9 +29,9 @@ case class PreparationPhaseTableModel(
 
 object PlacePhaseTableModel {
   def init(table: PreparationPhaseTableModel, enigmaPlacement: BoardPosition): PlacePhaseTableModel = {
-    val boards: List[(BoardPosition, Board, BoardRotation)] = table.boards.map{ case (pos, Some((bi, br))) => (
+    val boards: List[(BoardPosition, PFBoard, BoardRotation)] = table.boards.map{ case (pos, Some((bi, br))) => (
       pos,
-      Board(
+      PFBoard(
         id = bi.id,
         resolveOrderNumber = bi.resolveOrderNumber.get,
         placePhaseBoardPower = bi.placePhaseBoardPower,
@@ -47,7 +47,7 @@ object PlacePhaseTableModel {
   }
 }
 case class PlacePhaseTableModel(
-                                 boards: Map[BoardPosition, Board],
+                                 boards: Map[BoardPosition, PFBoard],
                                  enigmaPosition: BoardPosition
                                ) {
   override def toString: String =

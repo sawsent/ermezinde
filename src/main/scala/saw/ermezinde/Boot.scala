@@ -12,7 +12,7 @@ import saw.ermezinde.game.behaviour.NoStateBehaviour.CreateGameCommand
 import saw.ermezinde.game.behaviour.NotStartedBehaviour.{PlayerJoinGame, PlayerReady, PlayerSelectColor, StartGame}
 import saw.ermezinde.game.behaviour.inplay.PreparationPhaseBehaviour.{PlaceEnigma, RollDicePreparation, SelectBoard}
 import saw.ermezinde.game.domain.GameConfig
-import saw.ermezinde.game.domain.board.{Board, BoardPosition, BoardRotation, _90}
+import saw.ermezinde.game.domain.board.{PFBoard, BoardPosition, BoardRotation, _90}
 import saw.ermezinde.game.domain.game.state.inplay.{EnigmaPlacementGameState, OrderingSelectionGameState}
 import saw.ermezinde.game.domain.player.Color
 import saw.ermezinde.game.domain.player.Color.BLUE
