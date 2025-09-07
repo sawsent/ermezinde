@@ -1,7 +1,7 @@
 package saw.ermezinde.adapter.config
 
 import com.typesafe.config.Config
-import saw.ermezinde.game.domain.board.{Board, BoardPower, NoPower, Slot, SlotPosition}
+import saw.ermezinde.game.domain.board.{Board, PlacePhaseBoardPower, ResolvePhaseBoardPower, Slot, SlotPosition}
 
 import scala.jdk.CollectionConverters.ListHasAsScala
 import scala.util.Try
@@ -11,13 +11,18 @@ object Config2Board {
     Board(
       id = boardConfig.getString("id"),
       resolveOrderNumber = boardConfig.getInt("resolve-order-number"),
-      boardPower = config2BoardPower(boardConfig.getString("board-power-id")),
+      placePhaseBoardPower = config2PlacePhaseBoardPower(boardConfig.getString("place-phase-board-power-id")),
+      resolvePhaseBoardPower = config2ResolvePhaseBoardPower(boardConfig.getString("place-phase-board-power-id")),
       slots = boardConfig.getConfigList("slots").asScala.toList.map(config2BoardSlot).toMap
     )
   )
 
-  private def config2BoardPower(boardPowerId: String): BoardPower = boardPowerId match {
-    case _ => NoPower
+  private def config2PlacePhaseBoardPower(boardPowerId: String): Option[PlacePhaseBoardPower] = boardPowerId match {
+    case _ => None
+  }
+
+  private def config2ResolvePhaseBoardPower(boardPowerId: String): Option[ResolvePhaseBoardPower] = boardPowerId match {
+    case _ => None
   }
 
   private def config2BoardSlot(slotConfig: Config): (SlotPosition, Slot) = {

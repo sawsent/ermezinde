@@ -6,12 +6,12 @@ import saw.ermezinde.game.domain.game.state.{GameState, InCountingGameState}
 import saw.ermezinde.game.domain.player.PlayerModel.PlayerModelId
 
 object DiscardPhaseGameState {
-  def init(state: ResolvePhaseGameState): DiscardPhaseGameState = DiscardPhaseGameState(
+  def init(state: ResolvePhaseGameState, enigmaOwner: Option[PlayerId]): DiscardPhaseGameState = DiscardPhaseGameState(
     id = state.id,
     ownerId = state.ownerId,
     gameStartTime = state.gameStartTime,
     players = state.players,
-    game = DiscardPhaseGameModel.init(state.game),
+    game = DiscardPhaseGameModel.init(state.game, enigmaOwner.map(state.players(_))),
     playersDiscarded = List.empty
   )
 }

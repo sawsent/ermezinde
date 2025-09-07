@@ -26,6 +26,9 @@ import scala.util.{Failure, Success, Try}
 
 object Boot extends App with Logging {
   println("####### Starting Ermezinde Server #######")
+  println((0 until 90/90).toList)
+  println((0 until 180/90).toList)
+  println((0 until 270/90).toList)
 
   private val config = ConfigFactory.load()
 

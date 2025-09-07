@@ -3,9 +3,18 @@ package saw.ermezinde.game.domain.board
 case class Board(
                 id: String,
                 resolveOrderNumber: Int,
-                boardPower: BoardPower,
+                placePhaseBoardPower: Option[PlacePhaseBoardPower],
+                resolvePhaseBoardPower: Option[ResolvePhaseBoardPower],
                 slots: Map[SlotPosition, Slot]
                 ) {
   def hasMiddleSlot: Boolean = slots.keys.toList.contains(SlotPosition.MIDDLE)
+
+  def rotate: Board = copy(
+    slots = slots.map { case (slotPosition, slot) =>
+      slotPosition.rotatedSlotPosition -> slot
+    }
+  )
+
+  def rotate(boardRotation: BoardRotation): Board = (0 until boardRotation.degrees/90).toList.foldLeft(this)((board, _) => board.rotate)
 }
 

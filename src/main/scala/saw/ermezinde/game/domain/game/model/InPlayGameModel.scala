@@ -32,7 +32,6 @@ sealed trait InPlayGameModel extends GameModel {
   val phase: GamePhase
   val round: Int
   val missionCards: List[MissionCard]
-  val enigmaOwner: Option[PlayerModelId]
 }
 
 object PreparationPhaseGameModel {
@@ -84,14 +83,12 @@ object PlacePhaseGameModel {
     missionCards = model.missionCards,
     table = PlacePhaseTableModel.init(model.table, enigmaPlacement),
     playerOrdering = playerOrdering,
-    enigmaOwner = model.enigmaOwner
   )
 }
 case class PlacePhaseGameModel(
                                 config: GameConfig,
                                 round: Int,
                                 players: Map[PlayerModelId, PlayerModel],
-                                enigmaOwner: Option[PlayerModelId],
                                 missionCards: List[MissionCard],
                                 playerOrdering: List[PlayerModelId],
                                 table: PlacePhaseTableModel
@@ -103,7 +100,6 @@ case class ResolvePhaseGameModel(
                                   config: GameConfig,
                                   round: Int,
                                   players: Map[PlayerModelId, PlayerModel],
-                                  enigmaOwner: Option[PlayerModelId],
                                   missionCards: List[MissionCard],
                                   table: ResolvePhaseTableModel,
                                   deck: Deck
@@ -112,11 +108,11 @@ case class ResolvePhaseGameModel(
 }
 
 object DiscardPhaseGameModel {
-  def init(model: ResolvePhaseGameModel): DiscardPhaseGameModel = DiscardPhaseGameModel(
+  def init(model: ResolvePhaseGameModel, enigmaOwner: Option[PlayerModelId]): DiscardPhaseGameModel = DiscardPhaseGameModel(
     config = model.config,
     round = model.round,
     players = model.players,
-    enigmaOwner = model.enigmaOwner,
+    enigmaOwner = enigmaOwner,
     missionCards = model.missionCards,
     deck = model.deck
   )

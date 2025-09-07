@@ -30,5 +30,7 @@ object PlacePhaseTableModel {
 
   )
 }
-case class PlacePhaseTableModel()
+case class PlacePhaseTableModel(
+
+                               )
 case class ResolvePhaseTableModel()

@@ -150,7 +150,7 @@ case class EnigmaPlacementGameState(
   override val gameStartTime: Option[Timestamp] = underlying.gameStartTime
   override val players: Map[PlayerId, PlayerModelId] = underlying.players
 
-  val enigmaOwner: Option[PlayerId] = game.enigmaOwner.map(rPlayers(_))
+  val enigmaOwner: Option[PlayerId] = underlying.game.enigmaOwner.map(rPlayers(_))
 
   def setEnigmaPlacement(bp: BoardPosition): EnigmaPlacementGameState = copy(enigmaPlacement = Some(bp))
   def moveToPlacement: InPlayGameState = PlacePhaseGameState.init(underlying, playerOrdering, enigmaPlacement.get)

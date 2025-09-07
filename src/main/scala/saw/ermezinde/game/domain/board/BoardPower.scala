@@ -1,6 +1,6 @@
 package saw.ermezinde.game.domain.board
 
 
-sealed trait BoardPower
+sealed trait PlacePhaseBoardPower
+sealed trait ResolvePhaseBoardPower
 
-case object NoPower extends BoardPower
