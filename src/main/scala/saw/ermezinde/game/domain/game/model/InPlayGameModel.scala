@@ -1,12 +1,15 @@
 package saw.ermezinde.game.domain.game.model
 
 import saw.ermezinde.game.domain.GameConfig
-import saw.ermezinde.game.domain.board.{PFBoard, BoardInfo, BoardPosition, BoardRotation}
+import saw.ermezinde.game.domain.board.PlacePhaseBoardPower.{ChangeResolveOrderNumber, RotateBoard, Roulette}
+import saw.ermezinde.game.domain.board.PFUseBoardPower.{UseChangeResolveOrderBoardPower, UseRotateBoardPower, UseRouletteBoardPower}
+import saw.ermezinde.game.domain.board.{BoardInfo, BoardPosition, BoardRotation, PFUseBoardPower, PlacePhaseBoardPower}
 import saw.ermezinde.game.domain.card.{Card, Deck, MissionCard}
 import saw.ermezinde.game.domain.game.GamePhase
 import saw.ermezinde.game.domain.player.PlayerModel
 import saw.ermezinde.game.domain.player.PlayerModel.PlayerModelId
-import saw.ermezinde.game.domain.table.{PlacePhaseTableModel, PreparationPhaseTableModel, ResolvePhaseTableModel}
+import saw.ermezinde.game.domain.slot.{NormalSlotInfo, PFNormalSlot}
+import saw.ermezinde.game.domain.table.{PlacePhaseTableModel, PreparationPhaseTableModel, ResolvePhaseTableModel, SlotPositionDTO}
 
 
 object InPlayGameModel {
@@ -82,6 +85,7 @@ object PlacePhaseGameModel {
     round = model.round,
     players = model.players,
     deck = model.deck,
+    placeRound = 1,
     currentPlayerIdx = 0,
     missionCards = model.missionCards,
     table = PlacePhaseTableModel.init(model.table, enigmaPlacement),
@@ -94,14 +98,70 @@ case class PlacePhaseGameModel(
                                 players: Map[PlayerModelId, PlayerModel],
                                 missionCards: List[MissionCard],
                                 deck: Deck,
+                                placeRound: Int,
                                 playerOrdering: List[PlayerModelId],
                                 currentPlayerIdx: Int,
                                 table: PlacePhaseTableModel
                               ) extends InPlayGameModel {
   override val phase: GamePhase = GamePhase.PLACE
 
-  val currentPlayer: PlayerModelId = playerOrdering(currentPlayerIdx)
-  def nextPlayer: PlacePhaseGameModel = copy(currentPlayerIdx = (currentPlayerIdx + 1) % playerOrdering.length)
+  val currentPlayer: PlayerModelId = playerOrdering(currentPlayerIdx % playerOrdering.length)
+  def nextPlayer: PlacePhaseGameModel = copy(currentPlayerIdx = currentPlayerIdx + 1)
+  val allCardsPlaced: Boolean = currentPlayerIdx == 12
+
+  def playerPlaceCard(id: PlayerModelId, cardId: String, slotPosition: SlotPositionDTO): PlacePhaseGameModel = {
+    val player = players(id)
+    val card = player.hand.find(_.id == cardId).get
+    val updatedModel = player.copy(
+      hand = player.hand.filterNot(_ == card)
+    )
+
+    copy(
+      players = players + (id -> updatedModel),
+      table = table.placeCard(id, card, slotPosition)
+    ).nextPlayer
+  }
+
+  def isValidPowerUsageDTO(playerModelId: PlayerModelId, slotPositionDTO: SlotPositionDTO, powerUsageDTO: Option[PFUseBoardPower]): Boolean = {
+    table.boardIdToBoard.get(slotPositionDTO.boardId).map(board => (board.power, powerUsageDTO, board))
+      .exists({
+        case (None, None, _) => true
+        case (Some(RotateBoard), Some(_: UseRotateBoardPower), board) => board.nonPrizeSlots.forall(_.card.isEmpty)
+        case (Some(_: Roulette), Some(UseRouletteBoardPower(card)), _) =>
+          players(playerModelId).hand.contains(card) || players(playerModelId).discarded.contains(card)
+
+        case (Some(ChangeResolveOrderNumber), Some(UseChangeResolveOrderBoardPower(change)), board) =>
+          board.slots.get(slotPositionDTO.slotPosition)
+            .filter(!_.isPrize)
+            .map(_.asInstanceOf[PFNormalSlot])
+            .exists(_.slotInfo.resolveOrderNumber >= math.abs(change))
+        case _ => false
+      })
+  }
+
+  def useBoardPower(playerModelId: PlayerModelId, boardId: String, powerUsageDTO: PFUseBoardPower): PlacePhaseGameModel = {
+    val board = table.boardIdToBoard(boardId)
+    val boardPosition = table.boardIdToBoardPosition(boardId)
+
+    val playerModel = players(playerModelId)
+    val updatedPlayerModel = powerUsageDTO match {
+      case UseRouletteBoardPower(card) => playerModel.copy(
+        hand = playerModel.hand.filterNot(_ == card),
+        discarded = playerModel.discarded.filterNot(_ == card)
+      )
+      case _ => playerModel
+    }
+
+    val updatedBoard = board.power.map(_.use(powerUsageDTO, board)).getOrElse(board)
+
+    val updatedTable = table.copy(
+      boards = table.boards + (boardPosition -> updatedBoard)
+    )
+    copy(
+      table = updatedTable,
+      players = players + (updatedPlayerModel.id -> updatedPlayerModel)
+    )
+  }
 }
 
 case class ResolvePhaseGameModel(

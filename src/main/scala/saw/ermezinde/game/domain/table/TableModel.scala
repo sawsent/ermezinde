@@ -1,8 +1,10 @@
 package saw.ermezinde.game.domain.table
 
 import saw.ermezinde.game.domain.board.BoardPosition._
-import saw.ermezinde.game.domain.board.{PFBoard, BoardInfo, BoardPosition, BoardRotation}
-import saw.ermezinde.game.domain.slot.{PFSlot, SlotPosition}
+import saw.ermezinde.game.domain.board.{BoardInfo, BoardPosition, BoardRotation, PFBoard}
+import saw.ermezinde.game.domain.card.Card
+import saw.ermezinde.game.domain.player.PlayerModel.PlayerModelId
+import saw.ermezinde.game.domain.slot.{PFNormalSlot, PFSlot, SlotPosition, VisionLevel}
 
 object PreparationPhaseTableModel {
   def init: PreparationPhaseTableModel = {
@@ -34,8 +36,7 @@ object PlacePhaseTableModel {
       PFBoard(
         id = bi.id,
         resolveOrderNumber = bi.resolveOrderNumber.get,
-        placePhaseBoardPower = bi.placePhaseBoardPower,
-        resolvePhaseBoardPower = bi.resolvePhaseBoardPower,
+        power = bi.placePhaseBoardPower,
         slots = bi.slots.map(si => si.position -> PFSlot.fromInfo(si)).toMap
       ),
       br
@@ -50,29 +51,50 @@ case class PlacePhaseTableModel(
                                  boards: Map[BoardPosition, PFBoard],
                                  enigmaPosition: BoardPosition
                                ) {
-  override def toString: String =
-    s"""|PlacePhaseTableModel:
-        | ///////////////////////////////////////////////////////////////////////////
-        | ///----------/----------///----------/----------///----------/----------///
-        | ///          /          ///          /          ///          /          ///
-        | /// (${boards(TL).slots(SlotPosition.TL)}) / (${boards(TL).slots(SlotPosition.TR)}) /// (${boards(TM).slots(SlotPosition.TL)}) / (${boards(TM).slots(SlotPosition.TR)}) /// (${boards(TR).slots(SlotPosition.TL)}) / (${boards(TR).slots(SlotPosition.TR)}) ///
-        | ///       /------/      ///      /------/       ///       /------/      ///
-        | ///-------/${boards(TL).slots.getOrElse(SlotPosition.MIDDLE, " None ")}/------///------/${boards(TM).slots.getOrElse(SlotPosition.MIDDLE, " None ")}/-------///-------/${boards(TR).slots.getOrElse(SlotPosition.MIDDLE, " None ")}/------///
-        | ///       /------/      ///      /------/       ///       /------/      ///
-        | /// (${boards(TL).slots(SlotPosition.BL)}) / (${boards(TL).slots(SlotPosition.BR)}) /// (${boards(TM).slots(SlotPosition.BL)}) / (${boards(TM).slots(SlotPosition.BR)}) /// (${boards(TR).slots(SlotPosition.BL)}) / (${boards(TR).slots(SlotPosition.BR)}) ///
-        | ///          /          ///          /          ///          /          ///
-        | ///----------/----------///----------/----------///----------/----------///
-        | ///////////////////////////////////////////////////////////////////////////
-        | ///----------/----------///----------/----------///----------/----------///
-        | ///          /          ///          /          ///          /          ///
-        | /// (${boards(BL).slots(SlotPosition.TL)}) / (${boards(BL).slots(SlotPosition.TR)}) /// (${boards(BM).slots(SlotPosition.TL)}) / (${boards(BM).slots(SlotPosition.TR)}) /// (${boards(BR).slots(SlotPosition.TL)}) / (${boards(BR).slots(SlotPosition.TR)}) ///
-        | ///       /------/      ///      /------/       ///       /------/      ///
-        | ///-------/${boards(BL).slots.getOrElse(SlotPosition.MIDDLE, " None ")}/------///------/${boards(BM).slots.getOrElse(SlotPosition.MIDDLE, " None ")}/-------///-------/${boards(BR).slots.getOrElse(SlotPosition.MIDDLE, " None ")}/------///
-        | ///       /------/      ///      /------/       ///       /------/      ///
-        | /// (${boards(BL).slots(SlotPosition.BL)}) / (${boards(BL).slots(SlotPosition.BR)}) /// (${boards(BM).slots(SlotPosition.BL)}) / (${boards(BM).slots(SlotPosition.BR)}) /// (${boards(BR).slots(SlotPosition.BL)}) / (${boards(BR).slots(SlotPosition.BR)}) ///
-        | ///          /          ///          /          ///          /          ///
-        | ///----------/----------///----------/----------///----------/----------///
-        | ///////////////////////////////////////////////////////////////////////////
-        |""".stripMargin
+
+  val boardIdToBoard: Map[String, PFBoard] = boards.map { case (_, b) => b.id -> b }
+  val boardIdToBoardPosition: Map[String, BoardPosition] = boards.map { case (bp, b) => b.id -> bp }
+  val flatSlotViewByPosition: Map[(BoardPosition, SlotPosition), PFSlot] = boards.toList.flatMap { case (bp, b) => b.slots.map { case (sp, s) => (bp, sp) -> s}}.toMap
+  val flatSlotViewByBoardId: Map[SlotPositionDTO, PFSlot] = boards.toList.flatMap { case (_, b) => b.slots.map { case (sp, s) => SlotPositionDTO(b.id, sp) -> s}}.toMap
+  val flatSlotViewByBoard: Map[(PFBoard, SlotPosition), PFSlot] = boards.toList.flatMap { case (_, b) => b.slots.map { case (sp, s) => (b, sp) -> s}}.toMap
+
+  val outsideSlots: Set[(PFBoard, SlotPosition)] =
+    flatSlotViewByPosition
+      .filter(!_._2.isPrize)
+      .map{ case (k, s) => k -> s.asInstanceOf[PFNormalSlot]}
+      .filter{ case ((bp, sp), s) => bp.outsideSlotPositions.contains(sp) || s.slotInfo.alwaysOutside }
+      .keySet
+      .map{ case (bp, sp) => boards(bp) -> sp}
+
+  def placeCard(playerModelId: PlayerModelId, card: Card, slotPos: SlotPositionDTO): PlacePhaseTableModel = {
+    val board = boardIdToBoard(slotPos.boardId)
+    val boardPosition = boardIdToBoardPosition(slotPos.boardId)
+
+    val slot = board.slots(slotPos.slotPosition)
+
+    val updatedSlot = slot.place(card).setPlacedBy(playerModelId)
+
+    val updatedBoard = board.copy(
+      slots = board.slots + (slotPos.slotPosition -> updatedSlot)
+    )
+
+    copy(
+      boards = boards + (boardPosition -> updatedBoard)
+    )
+  }
+
+  def slotExists(s: SlotPositionDTO): Boolean = flatSlotViewByBoardId.contains(s)
+  def slotIsPlaceable(s: SlotPositionDTO): Boolean = !flatSlotViewByBoardId.get(s).filterNot(_.isPrize).forall(_.asInstanceOf[PFNormalSlot].card.isEmpty)
+  def slotCanSeeCards(from: SlotPositionDTO, to: List[SlotPositionDTO]): Boolean = {
+    val fromSlot = flatSlotViewByBoardId(from).asInstanceOf[PFNormalSlot]
+    fromSlot.slotInfo.visionLevel match {
+      case VisionLevel.NOTHING => false
+      case VisionLevel.SAME_BOARD => to.length == 1 && to.head.boardId == from.boardId
+      case VisionLevel.ADJACENT_BOARDS => to.length == 1 && boardIdToBoardPosition(from.boardId).adjacents.contains(boardIdToBoardPosition(to.head.boardId))
+      case VisionLevel.ALL_BOARDS => to.length == 1
+      case VisionLevel.SAME_BOARD_TWICE => 0 < to.length && to.length <= 2 && to.forall(_.boardId == from.boardId)
+    }
+  }
+
 }
 case class ResolvePhaseTableModel()

@@ -9,7 +9,8 @@ case class NormalSlotInfo(
                            position: SlotPosition,
                            topSecret: Boolean,
                            visionLevel: VisionLevel,
-                           resolveOrderNumber: Int
+                           resolveOrderNumber: Int,
+                           alwaysOutside: Boolean
                          ) extends SlotInfo {
   override val isPrize: Boolean = false
 }

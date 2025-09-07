@@ -54,7 +54,8 @@ object Config2Board {
         position = position,
         topSecret = topSecret,
         visionLevel = config2VisionLevel(slotConfig.getString("vision-level")),
-        resolveOrderNumber = slotConfig.getInt("resolve-order-number")
+        resolveOrderNumber = slotConfig.getInt("resolve-order-number"),
+        alwaysOutside = slotConfig.getBoolean("always-outside")
       )
     }
   }
