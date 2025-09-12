@@ -8,7 +8,7 @@ import saw.ermezinde.game.domain.card.{Card, Deck, MissionCard}
 import saw.ermezinde.game.domain.game.GamePhase
 import saw.ermezinde.game.domain.player.PlayerModel
 import saw.ermezinde.game.domain.player.PlayerModel.PlayerModelId
-import saw.ermezinde.game.domain.slot.{NormalSlotInfo, PFNormalSlot}
+import saw.ermezinde.game.domain.slot.{NormalSlotInfo, PFNormalSlot, PFPrizeSlot, PrizeSlotInfo}
 import saw.ermezinde.game.domain.table.{PlacePhaseTableModel, PreparationPhaseTableModel, ResolvePhaseTableModel, SlotPositionDTO}
 
 
@@ -80,17 +80,20 @@ case class PreparationPhaseGameModel(
 }
 
 object PlacePhaseGameModel {
-  def init(model: PreparationPhaseGameModel, playerOrdering: List[PlayerModelId], enigmaPlacement: BoardPosition): PlacePhaseGameModel = PlacePhaseGameModel(
-    config = model.config,
-    round = model.round,
-    players = model.players,
-    deck = model.deck,
-    placeRound = 1,
-    currentPlayerIdx = 0,
-    missionCards = model.missionCards,
-    table = PlacePhaseTableModel.init(model.table, enigmaPlacement),
-    playerOrdering = playerOrdering,
-  )
+  def init(model: PreparationPhaseGameModel, playerOrdering: List[PlayerModelId], enigmaPlacement: BoardPosition): PlacePhaseGameModel = {
+    val nrOfPrizeCardsToGive = model.table.boards.map(_._2.get).keys.flatMap(_.slots).filter(_.isPrize).map(_.asInstanceOf[PrizeSlotInfo]).map(_.prizeAmount).sum
+    val (deck, cardsToGive) = model.deck.take(nrOfPrizeCardsToGive)
+    PlacePhaseGameModel(
+      config = model.config,
+      round = model.round,
+      players = model.players,
+      deck = deck,
+      currentPlayerIdx = 0,
+      missionCards = model.missionCards,
+      table = PlacePhaseTableModel.init(model.table, enigmaPlacement, cardsToGive),
+      playerOrdering = playerOrdering,
+    )
+  }
 }
 case class PlacePhaseGameModel(
                                 config: GameConfig,
@@ -98,7 +101,6 @@ case class PlacePhaseGameModel(
                                 players: Map[PlayerModelId, PlayerModel],
                                 missionCards: List[MissionCard],
                                 deck: Deck,
-                                placeRound: Int,
                                 playerOrdering: List[PlayerModelId],
                                 currentPlayerIdx: Int,
                                 table: PlacePhaseTableModel
@@ -108,6 +110,7 @@ case class PlacePhaseGameModel(
   val currentPlayer: PlayerModelId = playerOrdering(currentPlayerIdx % playerOrdering.length)
   def nextPlayer: PlacePhaseGameModel = copy(currentPlayerIdx = currentPlayerIdx + 1)
   val allCardsPlaced: Boolean = currentPlayerIdx == 12
+  private val placeRound: Int = (currentPlayerIdx / playerOrdering.length).ceil.toInt
 
   def playerPlaceCard(id: PlayerModelId, cardId: String, slotPosition: SlotPositionDTO): PlacePhaseGameModel = {
     val player = players(id)
@@ -121,6 +124,8 @@ case class PlacePhaseGameModel(
       table = table.placeCard(id, card, slotPosition)
     ).nextPlayer
   }
+
+  def slotIsPlaceable(sp: SlotPositionDTO, playerModelId: PlayerModelId): Boolean = table.slotIsPlaceable(sp, playerModelId, placeRound)
 
   def isValidPowerUsageDTO(playerModelId: PlayerModelId, slotPositionDTO: SlotPositionDTO, powerUsageDTO: Option[PFUseBoardPower]): Boolean = {
     table.boardIdToBoard.get(slotPositionDTO.boardId).map(board => (board.power, powerUsageDTO, board))
@@ -164,6 +169,16 @@ case class PlacePhaseGameModel(
   }
 }
 
+object ResolvePhaseGameModel {
+  def init(game: PlacePhaseGameModel): ResolvePhaseGameModel = ResolvePhaseGameModel(
+    config = game.config,
+    round = game.round,
+    players = game.players,
+    missionCards = game.missionCards,
+    table = ResolvePhaseTableModel.init(game.table),
+    deck = game.deck
+  )
+}
 case class ResolvePhaseGameModel(
                                   config: GameConfig,
                                   round: Int,

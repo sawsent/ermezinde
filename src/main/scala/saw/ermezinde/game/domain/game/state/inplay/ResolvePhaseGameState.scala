@@ -5,6 +5,15 @@ import saw.ermezinde.game.domain.game.state.GameActorState.{PlayerId, Timestamp}
 import saw.ermezinde.game.domain.player.PlayerModel.PlayerModelId
 
 
+object ResolvePhaseGameState {
+  def init(placePhaseGameState: PlacePhaseGameState): ResolvePhaseGameState = ResolvePhaseGameState(
+    id = placePhaseGameState.id,
+    ownerId = placePhaseGameState.ownerId,
+    gameStartTime = placePhaseGameState.gameStartTime,
+    players = placePhaseGameState.players,
+    game = ResolvePhaseGameModel.init(placePhaseGameState.game)
+  )
+}
 case class ResolvePhaseGameState(
                                   id: String,
                                   ownerId: String,

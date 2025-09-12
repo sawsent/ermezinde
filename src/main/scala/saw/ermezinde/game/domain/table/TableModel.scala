@@ -30,19 +30,36 @@ case class PreparationPhaseTableModel(
 }
 
 object PlacePhaseTableModel {
-  def init(table: PreparationPhaseTableModel, enigmaPlacement: BoardPosition): PlacePhaseTableModel = {
-    val boards: List[(BoardPosition, PFBoard, BoardRotation)] = table.boards.map{ case (pos, Some((bi, br))) => (
+  def init(table: PreparationPhaseTableModel, enigmaPlacement: BoardPosition, prizeCards: List[Card]): PlacePhaseTableModel = {
+    val boards: List[(BoardPosition, PFBoard)] = table.boards.map{ case (pos, Some((bi, br))) => (
       pos,
       PFBoard(
         id = bi.id,
         resolveOrderNumber = bi.resolveOrderNumber.get,
         power = bi.placePhaseBoardPower,
         slots = bi.slots.map(si => si.position -> PFSlot.fromInfo(si)).toMap
-      ),
-      br
+      ).rotate(br),
     )}.toList
+
+    val withPrize = prizeCards.foldLeft(boards)((boards, prizeCard) => {
+      val updatedBoard = boards
+        .find { case (_, board) => board.prizeSlot._2.cards.length < board.prizeSlot._2.slotInfo.prizeAmount }
+        .map { case (pos, board) =>
+          val prizeSlot = board.prizeSlot
+          val withCard = prizeSlot._2.place(prizeCard)
+          pos -> board.copy(
+              slots = board.slots + (prizeSlot._1 -> withCard)
+            )
+        }
+        .get
+
+      (boards.toMap + updatedBoard).toList
+    })
+
+
+
     PlacePhaseTableModel(
-      boards = boards.map { case (bp, board, boardRotation) => bp -> board.rotate(boardRotation)}.toMap,
+      boards = withPrize.toMap,
       enigmaPosition = enigmaPlacement
     )
   }
@@ -54,17 +71,15 @@ case class PlacePhaseTableModel(
 
   val boardIdToBoard: Map[String, PFBoard] = boards.map { case (_, b) => b.id -> b }
   val boardIdToBoardPosition: Map[String, BoardPosition] = boards.map { case (bp, b) => b.id -> bp }
-  val flatSlotViewByPosition: Map[(BoardPosition, SlotPosition), PFSlot] = boards.toList.flatMap { case (bp, b) => b.slots.map { case (sp, s) => (bp, sp) -> s}}.toMap
-  val flatSlotViewByBoardId: Map[SlotPositionDTO, PFSlot] = boards.toList.flatMap { case (_, b) => b.slots.map { case (sp, s) => SlotPositionDTO(b.id, sp) -> s}}.toMap
-  val flatSlotViewByBoard: Map[(PFBoard, SlotPosition), PFSlot] = boards.toList.flatMap { case (_, b) => b.slots.map { case (sp, s) => (b, sp) -> s}}.toMap
+  private val flatSlotViewByPosition: Map[(BoardPosition, SlotPosition), PFSlot] = boards.toList.flatMap { case (bp, b) => b.slots.map { case (sp, s) => (bp, sp) -> s}}.toMap
+  private val flatSlotViewByBoardId: Map[SlotPositionDTO, PFSlot] = boards.toList.flatMap { case (_, b) => b.slots.map { case (sp, s) => SlotPositionDTO(b.id, sp) -> s}}.toMap
 
-  val outsideSlots: Set[(PFBoard, SlotPosition)] =
+  private val outsideSlots: Set[(BoardPosition, SlotPosition)] =
     flatSlotViewByPosition
       .filter(!_._2.isPrize)
       .map{ case (k, s) => k -> s.asInstanceOf[PFNormalSlot]}
       .filter{ case ((bp, sp), s) => bp.outsideSlotPositions.contains(sp) || s.slotInfo.alwaysOutside }
       .keySet
-      .map{ case (bp, sp) => boards(bp) -> sp}
 
   def placeCard(playerModelId: PlayerModelId, card: Card, slotPos: SlotPositionDTO): PlacePhaseTableModel = {
     val board = boardIdToBoard(slotPos.boardId)
@@ -85,16 +100,36 @@ case class PlacePhaseTableModel(
 
   def slotExists(s: SlotPositionDTO): Boolean = flatSlotViewByBoardId.contains(s)
   def slotIsPlaceable(s: SlotPositionDTO): Boolean = !flatSlotViewByBoardId.get(s).filterNot(_.isPrize).forall(_.asInstanceOf[PFNormalSlot].card.isEmpty)
+  def slotIsPlaceable(s: SlotPositionDTO, playerModelId: PlayerModelId, currentRound: Int): Boolean = currentRound match {
+    case 1 => slotIsPlaceable(s)
+    case _ =>
+      flatSlotViewByPosition
+        .filterNot{case (_, slot) => slot.isPrize}
+        .map { case (pos, slot) => pos -> slot.asInstanceOf[PFNormalSlot] }
+        .filter { case (_, slot) => slot.placedBy.contains(playerModelId) }
+        .map { case ((bp, sp), _) => bp.adjacentSlotPositions(sp) }
+        .flatten
+        .toSet
+        .concat(outsideSlots)
+        .filter(!flatSlotViewByPosition(_).isPrize)
+        .filter(flatSlotViewByPosition(_).asInstanceOf[PFNormalSlot].card.isEmpty)
+        .contains(boardIdToBoardPosition(s.boardId) -> s.slotPosition)
+
+  }
   def slotCanSeeCards(from: SlotPositionDTO, to: List[SlotPositionDTO]): Boolean = {
     val fromSlot = flatSlotViewByBoardId(from).asInstanceOf[PFNormalSlot]
     fromSlot.slotInfo.visionLevel match {
-      case VisionLevel.NOTHING => false
-      case VisionLevel.SAME_BOARD => to.length == 1 && to.head.boardId == from.boardId
-      case VisionLevel.ADJACENT_BOARDS => to.length == 1 && boardIdToBoardPosition(from.boardId).adjacents.contains(boardIdToBoardPosition(to.head.boardId))
-      case VisionLevel.ALL_BOARDS => to.length == 1
+      case VisionLevel.NOTHING => to.isEmpty
+      case VisionLevel.SAME_BOARD => to.length <= 1 && to.head.boardId == from.boardId
+      case VisionLevel.ADJACENT_BOARDS => to.length <= 1 && boardIdToBoardPosition(from.boardId).adjacents.contains(boardIdToBoardPosition(to.head.boardId))
+      case VisionLevel.ALL_BOARDS => to.length <= 1
       case VisionLevel.SAME_BOARD_TWICE => 0 < to.length && to.length <= 2 && to.forall(_.boardId == from.boardId)
     }
   }
 
+}
+
+object ResolvePhaseTableModel {
+  def init(table: PlacePhaseTableModel): ResolvePhaseTableModel = ResolvePhaseTableModel()
 }
 case class ResolvePhaseTableModel()

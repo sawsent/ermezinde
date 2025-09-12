@@ -37,11 +37,10 @@ trait PlacePhaseBehaviour {
         playerHasCard   -> s"Player $playerId does not have the card $cardId",
         boardExists -> s"Board ${slot.boardId} does not exist in the table",
         slotExists(slot) -> s"Slot $slot does not exist",
-        slotIsPlaceable(slot) -> s"Slot $slot is not placeable",
+        slotIsPlaceable(slot, playerId) -> s"Slot $slot is not placeable",
         visionUsage.forall(slotExists) -> s"Slots $visionUsage does not exist",
         canSeeCards -> s"Cant see cards $visionUsage from slot $slot",
-        canUsePower -> s"Cant use power $bpUsageDTO",
-
+        canUsePower -> s"Cant use power $bpUsageDTO"
       ).map {
         val withCardPlaced = state.playerPlaceCard(playerId, cardId, slot)
         val withBoardPowerUsed = bpUsageDTO.map(withCardPlaced.useBoardPower(playerId, slot.boardId, _)).getOrElse(withCardPlaced)
@@ -61,7 +60,7 @@ trait PlacePhaseBehaviour {
     val boardExists: Boolean = s.game.table.boards.exists(_._2.id == c.slot.boardId)
 
     def slotExists(sp: SlotPositionDTO): Boolean = s.game.table.slotExists(sp)
-    def slotIsPlaceable(sp: SlotPositionDTO): Boolean = s.game.table.slotIsPlaceable(sp)
+    def slotIsPlaceable(sp: SlotPositionDTO, playerId: PlayerId): Boolean = s.game.slotIsPlaceable(sp, s.players(playerId))
     val canSeeCards: Boolean = s.game.table.slotCanSeeCards(c.slot, c.visionUsage)
 
     def toBoardPowerOption: Option[PFUseBoardPower] = c.boardPowerUsageDTO.map(s.toBoardPower(c.playerId, _))

@@ -46,7 +46,9 @@ case class PlacePhaseGameState(
     ).verifications
   }
 
-  def verifications: InPlayGameState = copy()
+  def verifications: InPlayGameState = if (game.allCardsPlaced) {
+    ResolvePhaseGameState.init(copy())
+  } else copy()
 
   def toBoardPower(playerId: PlayerId, dto: PFUseBoardPowerDTO): PFUseBoardPower = dto match {
     case d: PFUseBoardPower.UseChangeResolveOrderBoardPower => d

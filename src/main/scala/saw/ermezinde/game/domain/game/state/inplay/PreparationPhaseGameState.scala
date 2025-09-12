@@ -74,7 +74,7 @@ case class OrderingSelectionGameState(
         diceRolls = diceRolls :+ currentRoundDiceRolls,
       ).checkTies
     } else {
-      this
+      copy()
     }
   }
 
@@ -94,7 +94,6 @@ case class OrderingSelectionGameState(
   }
 
   private def moveToNextPhase: InPlayGameState = {
-    println(diceRolls)
     val playerOrdering =
       diceRolls.map(map => map.map(kv => kv._1 -> kv._2.value)).reverse
         .zipWithIndex
